@@ -22,10 +22,22 @@ button { display: block; width: 100%; margin: 6px 0; padding: 10px; font-size: 1
 
 <input id="name" placeholder="Dein Name" style="width:100%;padding:8px">
 
-<button onclick="vote('Laufen & Essen 🏃🏃‍♀️🍻')">🏃🏃‍♀️🍻 Laufen und essen</button>
-<button onclick="vote('Nur Laufen 🏃🏃‍♀️')">🏃🏃‍♀️ nur laufen</button>
-<button onclick="vote('Nur Essen 🍻')">🍻 nur essen</button>
-<button onclick="vote('Ganz raus 🛁')">🛁 ganz raus</button>
+<button id="btn-all" onclick="vote('Laufen & Essen 🏃🏃‍♀️🍻')">
+  Laufen und essen 🏃🏃‍♀️🍻 (0)
+</button>
+
+<button id="btn-run" onclick="vote('Nur Laufen 🏃🏃‍♀️')">
+  nur laufen 🏃🏃‍♀️ (0)
+</button>
+
+<button id="btn-eat" onclick="vote('Nur Essen 🍻')">
+  nur essen 🍻 (0)
+</button>
+
+<button id="btn-out" onclick="vote('Ganz raus 🛁')">
+  ganz raus 🛁 (0)
+</button>
+
 
 <h3>👇 Aktuelle Stimmen</h3>
 <ul id="results"></ul>
@@ -93,10 +105,41 @@ function vote(choice) {
 db.collection("votes").onSnapshot(snap => {
   const ul = document.getElementById("results");
   ul.innerHTML = "";
+
+  // Zähler
+  let counts = {
+    "Laufen & Essen 🏃🏃‍♀️🍻": 0,
+    "Nur Laufen 🏃🏃‍♀️": 0,
+    "Nur Essen 🍻": 0,
+    "Ganz raus 🛁": 0
+  };
+
   snap.forEach(doc => {
-    ul.innerHTML += `<li>${doc.id} → ${doc.data().choice}</li>`;
+    const choice = doc.data().choice;
+
+    // Liste unten
+    ul.innerHTML += `<li>${doc.id} → ${choice}</li>`;
+
+    // Zählen
+    if (counts[choice] !== undefined) {
+      counts[choice]++;
+    }
   });
+
+  // Buttons aktualisieren
+  document.getElementById("btn-all").innerText =
+    `🏃🏃‍♀️🍻 Laufen und essen (${counts["Laufen & Essen 🏃🏃‍♀️🍻"]})`;
+
+  document.getElementById("btn-run").innerText =
+    `🏃🏃‍♀️ nur laufen (${counts["Nur Laufen 🏃🏃‍♀️"]})`;
+
+  document.getElementById("btn-eat").innerText =
+    `🍻 nur essen (${counts["Nur Essen 🍻"]})`;
+
+  document.getElementById("btn-out").innerText =
+    `🛁 ganz raus (${counts["Ganz raus 🛁"]})`;
 });
+
 
 /* 🌦️ Wetter für Mittwoch 16–18 Uhr */
 async function loadWeather() {

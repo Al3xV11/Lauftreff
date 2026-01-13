@@ -2,15 +2,70 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mittwoch Umfrage</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-body { font-family: Arial; max-width: 600px; margin: auto; }
-button { display: block; width: 100%; margin: 6px 0; padding: 10px; font-size: 16px; }
+body {
+  font-family: Arial, sans-serif;
+  max-width: 600px;
+  margin: auto;
+  padding: 12px;
+}
+
+h2 {
+  font-size: 1.3em;
+  text-align: center;
+}
+
+h3 {
+  margin-top: 24px;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px; /* verhindert iOS-Zoom */
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  font-size: 18px;
+  margin: 6px 0;
+  border-radius: 8px;
+  border: none;
+  background: #f0f0f0;
+  cursor: pointer;
+}
+
+button:active {
+  background: #ddd;
+}
+
+#weather {
+  text-align: center;
+  font-size: 1.1em;
+  margin-bottom: 16px;
+}
+
+ul {
+  padding-left: 0;
+}
+
+li {
+  list-style: none;
+  padding: 6px 0;
+  line-height: 1.4;
+  font-size: 16px;
+}
 </style>
+  
 </head>
 
 <body>
@@ -40,7 +95,7 @@ button { display: block; width: 100%; margin: 6px 0; padding: 10px; font-size: 1
 
 
 <h3>👇 Aktuelle Stimmen</h3>
-<ul id="results"></ul>
+<ul id="results" style="margin-top:12px;"></ul>
 <script>
 /* 🔥 Firebase */
 firebase.initializeApp({

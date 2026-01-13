@@ -168,7 +168,7 @@ db.collection("votes").onSnapshot(snap => {
 
   // Buttons aktualisieren
   document.getElementById("btn-all").innerText =
-    `Laufen und essen 🏃🏃‍♀️🍻 (${grouped["Laufen & Essen 🏃🏃‍♀️🍻"].length})`;
+    `laufen und essen 🏃🏃‍♀️🍻 (${grouped["Laufen & Essen 🏃🏃‍♀️🍻"].length})`;
 
   document.getElementById("btn-run").innerText =
     `nur laufen 🏃🏃‍♀️ (${grouped["Nur Laufen 🏃🏃‍♀️"].length})`;
@@ -209,7 +209,7 @@ async function loadWeather() {
   if (temps.length) {
     const avg = (temps.reduce((a,b)=>a+b,0)/temps.length).toFixed(1);
     document.getElementById("weather").innerText =
-      `🌦️ ${avg} °C · Regen: ${rain ? "Ja" : "Nein"}`;
+      `🌦️ ${avg} °C · es wird ${rain ? "nicht regnen" : "regnen"}`;
   }
 }
 loadWeather();

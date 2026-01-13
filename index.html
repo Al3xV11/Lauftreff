@@ -34,8 +34,8 @@ button { display: block; width: 100%; margin: 6px 0; padding: 10px; font-size: 1
 /* 🔥 Firebase */
 firebase.initializeApp({
   apiKey: "DEIN_FIREBASE_KEY",
-  authDomain: "DEIN_PROJEKT.firebaseapp.com",
-  projectId: "DEIN_PROJEKT"
+  authDomain: "lauftreff-ad4df.firebaseapp.com",
+  projectId: "CrnOBsa4EhuncEqM6sf9"
 });
 const db = firebase.firestore();
 
@@ -60,7 +60,7 @@ db.collection("votes").onSnapshot(snap => {
 
 /* 🌦️ Wetter für Mittwoch 16–18 Uhr */
 async function loadWeather() {
-  const key = "DEIN_OPENWEATHER_KEY";
+  const key = "d5c77bf99195c16c75fc8a78261769ff";
   const lat = 49.2478, lon = 7.3666;
 
   const r = await fetch(

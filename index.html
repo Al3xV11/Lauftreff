@@ -38,6 +38,46 @@ firebase.initializeApp({
   projectId: "lauftreff-ad4df"
 });
 const db = firebase.firestore();
+  <script>
+async function weeklyResetIfNeeded() {
+  const metaRef = db.collection("meta").doc("reset");
+
+  const snap = await metaRef.get();
+  const lastReset = snap.exists ? snap.data().date : null;
+
+  const now = new Date();
+  const day = now.getDay(); // 4 = Donnerstag
+  const week = getWeekNumber(now);
+
+  // Nur Donnerstag resetten
+  if (day !== 4) return;
+
+  // Schon diese Woche zurückgesetzt?
+  if (lastReset === week) return;
+
+  // 🔥 Votes löschen
+  const votes = await db.collection("votes").get();
+  const batch = db.batch();
+  votes.forEach(doc => batch.delete(doc.ref));
+  await batch.commit();
+
+  // Reset merken
+  await metaRef.set({ date: week });
+
+  console.log("✅ Wöchentlicher Reset durchgeführt");
+}
+
+function getWeekNumber(d) {
+  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+  const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  return `${d.getUTCFullYear()}-${weekNo}`;
+}
+
+// Beim Laden ausführen
+weeklyResetIfNeeded();
+</script>
+
 
 /* 🗳️ Abstimmen (Name = Dokument → überschreibt alte Stimme) */
 function vote(choice) {

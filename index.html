@@ -1,3 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Mittwoch Umfrage</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+body { font-family: Arial; max-width: 600px; margin: auto; }
+button { display: block; width: 100%; margin: 6px 0; padding: 10px; font-size: 16px; }
+</style>
+</head>
+
+<body>
+
+<h2>📍 Zweibrücken<br>🕓 Mittwoch, 16–18 Uhr</h2>
+<p id="weather">Wetter wird geladen…</p>
+
+<h3>So Leute, wer ist am Mittwoch am Start?</h3>
+
+<input id="name" placeholder="Dein Name" style="width:100%;padding:8px">
+
+<button id="btn-all" onclick="vote('Laufen & Essen 🏃🏃‍♀️🍻')">
+  Laufen und essen 🏃🏃‍♀️🍻 (0)
+</button>
+
+<button id="btn-run" onclick="vote('Nur Laufen 🏃🏃‍♀️')">
+  nur laufen 🏃🏃‍♀️ (0)
+</button>
+
+<button id="btn-eat" onclick="vote('Nur Essen 🍻')">
+  nur essen 🍻 (0)
+</button>
+
+<button id="btn-out" onclick="vote('Ganz raus 🛁')">
+  ganz raus 🛁 (0)
+</button>
+
+
+<h3>👇 Aktuelle Stimmen</h3>
+<ul id="results"></ul>
 <script>
 /* 🔥 Firebase */
 firebase.initializeApp({

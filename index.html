@@ -34,19 +34,22 @@ input {
 }
 
 button {
+  display: flex;               /* Flexbox aktiv */
+  justify-content: space-between; /* Text links, Zahl rechts */
+  align-items: center;         /* Vertikal zentriert */
   width: 100%;
   padding: 14px;
   font-size: 18px;
   margin: 6px 0;
   border-radius: 8px;
   border: none;
-  background: #1565c0;   /* Blau */
+  background: #02254f;   /* Blau */
   color: white;          /* Weiße Schrift */
   cursor: pointer;
 }
 
 button:active {
-  background: #1e88e5;   /* dunkleres Blau beim Drücken */
+  background: #02254f;   /* dunkleres Blau beim Drücken */
 }
 
 
@@ -69,7 +72,7 @@ li {
   
 .count {
   display: inline-block;
-  background-color: #2e7d32; /* dunkelgrün */
+  background-color: #1e4220; /* dunkelgrün */
   color: white;
   border-radius: 50%;
   width: 28px;       /* Kreisgröße */
@@ -77,9 +80,9 @@ li {
   text-align: center;
   line-height: 28px; /* Zahl zentrieren */
   font-weight: bold;
-  margin-left: 10px; /* Abstand vom Text */
   font-size: 16px;
 }
+
   
 .divider {
   width: 100%;           /* horizontaler Bereich */

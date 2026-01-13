@@ -209,7 +209,7 @@ async function loadWeather() {
   if (temps.length) {
     const avg = (temps.reduce((a,b)=>a+b,0)/temps.length).toFixed(1);
     document.getElementById("weather").innerText =
-      `🌦️ ${avg} °C · es wird ${rain ? "nicht regnen" : "regnen"}`;
+      `🌦️ ${avg} °C · es wird ${rain ? "regnen" : "nicht regnen"}`;
   }
 }
 loadWeather();

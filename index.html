@@ -95,30 +95,41 @@ db.collection("votes").onSnapshot(snap => {
   const ul = document.getElementById("results");
   ul.innerHTML = "";
 
-  let counts = {
-    "Laufen & Essen 🏃🏃‍♀️🍻": 0,
-    "Nur Laufen 🏃🏃‍♀️": 0,
-    "Nur Essen 🍻": 0,
-    "Ganz raus 🛁": 0
+  // Namen pro Auswahl sammeln
+  let grouped = {
+    "Laufen & Essen 🏃🏃‍♀️🍻": [],
+    "Nur Laufen 🏃🏃‍♀️": [],
+    "Nur Essen 🍻": [],
+    "Ganz raus 🛁": []
   };
 
   snap.forEach(doc => {
+    const name = doc.id;
     const choice = doc.data().choice;
-    ul.innerHTML += `<li>${doc.id} → ${choice}</li>`;
-    if (counts[choice] !== undefined) counts[choice]++;
+    if (grouped[choice]) {
+      grouped[choice].push(name);
+    }
   });
 
+  // Buttons aktualisieren
   document.getElementById("btn-all").innerText =
-    `Laufen und essen 🏃🏃‍♀️🍻 (${counts["Laufen & Essen 🏃🏃‍♀️🍻"]})`;
+    `Laufen und essen 🏃🏃‍♀️🍻 (${grouped["Laufen & Essen 🏃🏃‍♀️🍻"].length})`;
 
   document.getElementById("btn-run").innerText =
-    `nur laufen 🏃🏃‍♀️ (${counts["Nur Laufen 🏃🏃‍♀️"]})`;
+    `nur laufen 🏃🏃‍♀️ (${grouped["Nur Laufen 🏃🏃‍♀️"].length})`;
 
   document.getElementById("btn-eat").innerText =
-    `nur essen 🍻 (${counts["Nur Essen 🍻"]})`;
+    `nur essen 🍻 (${grouped["Nur Essen 🍻"].length})`;
 
   document.getElementById("btn-out").innerText =
-    `ganz raus 🛁 (${counts["Ganz raus 🛁"]})`;
+    `ganz raus 🛁 (${grouped["Ganz raus 🛁"].length})`;
+
+  // Zusammengefasste Anzeige unten
+  Object.entries(grouped).forEach(([choice, names]) => {
+    if (names.length > 0) {
+      ul.innerHTML += `<li><strong>${choice}:</strong> ${names.join(", ")}</li>`;
+    }
+  });
 });
 
 /* 🌦️ Wetter */

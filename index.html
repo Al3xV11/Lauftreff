@@ -40,13 +40,13 @@ button {
   margin: 6px 0;
   border-radius: 8px;
   border: none;
-  background: #1e88e5;   /* Blau */
+  background: 1565c0;   /* Blau */
   color: white;          /* Weiße Schrift */
   cursor: pointer;
 }
 
 button:active {
-  background: #1565c0;   /* dunkleres Blau beim Drücken */
+  background: #1e88e5;   /* dunkleres Blau beim Drücken */
 }
 
 
@@ -64,6 +64,20 @@ li {
   list-style: none;
   padding: 6px 0;
   line-height: 1.4;
+  font-size: 16px;
+}
+  
+.count {
+  display: inline-block;
+  background-color: #2e7d32; /* dunkelgrün */
+  color: white;
+  border-radius: 50%;
+  width: 28px;       /* Kreisgröße */
+  height: 28px;
+  text-align: center;
+  line-height: 28px; /* Zahl zentrieren */
+  font-weight: bold;
+  margin-left: 10px; /* Abstand vom Text */
   font-size: 16px;
 }
 </style>
@@ -169,17 +183,18 @@ db.collection("votes").onSnapshot(snap => {
   });
 
   // Buttons aktualisieren
-  document.getElementById("btn-all").innerText =
-    `laufen und essen 🏃🏃‍♀️🍻 (${grouped["Laufen & Essen 🏃🏃‍♀️🍻"].length})`;
+document.getElementById("btn-all").innerHTML =
+  `Laufen und essen 🏃🏃‍♀️🍻 <span class="count">${grouped["Laufen & Essen 🏃🏃‍♀️🍻"].length}</span>`;
 
-  document.getElementById("btn-run").innerText =
-    `nur laufen 🏃🏃‍♀️ (${grouped["Nur Laufen 🏃🏃‍♀️"].length})`;
+document.getElementById("btn-run").innerHTML =
+  `nur laufen 🏃🏃‍♀️ <span class="count">${grouped["Nur Laufen 🏃🏃‍♀️"].length}</span>`;
 
-  document.getElementById("btn-eat").innerText =
-    `nur essen 🍻 (${grouped["Nur Essen 🍻"].length})`;
+document.getElementById("btn-eat").innerHTML =
+  `nur essen 🍻 <span class="count">${grouped["Nur Essen 🍻"].length}</span>`;
 
-  document.getElementById("btn-out").innerText =
-    `ganz raus 🛁 (${grouped["Ganz raus 🛁"].length})`;
+document.getElementById("btn-out").innerHTML =
+  `ganz raus 🛁 <span class="count">${grouped["Ganz raus 🛁"].length}</span>`;
+
 
   // Zusammengefasste Anzeige unten
   Object.entries(grouped).forEach(([choice, names]) => {

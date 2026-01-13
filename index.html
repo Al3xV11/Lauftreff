@@ -129,6 +129,13 @@ firebase.initializeApp({
 });
 const db = firebase.firestore();
 
+// Name aus LocalStorage laden
+const nameInput = document.getElementById("name");
+const savedName = localStorage.getItem("userName");
+if (savedName) {
+  nameInput.value = savedName;
+}
+
 /* 🔄 Wöchentlicher Reset (Donnerstag) */
 async function weeklyResetIfNeeded() {
   const metaRef = db.collection("meta").doc("reset");
@@ -161,8 +168,13 @@ weeklyResetIfNeeded();
 
 /* 🗳️ Abstimmen */
 function vote(choice) {
-  const name = document.getElementById("name").value.trim();
+  const nameInput = document.getElementById("name");
+  const name = nameInput.value.trim();
   if (!name) return alert("Name fehlt!");
+
+  // Name speichern
+  localStorage.setItem("userName", name);
+
   db.collection("votes").doc(name).set({
     choice: choice,
     time: new Date()

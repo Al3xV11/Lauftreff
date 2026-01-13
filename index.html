@@ -1,47 +1,3 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-<meta charset="UTF-8">
-<title>Mittwoch Umfrage</title>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-<style>
-body { font-family: Arial; max-width: 600px; margin: auto; }
-button { display: block; width: 100%; margin: 6px 0; padding: 10px; font-size: 16px; }
-</style>
-</head>
-
-<body>
-
-<h2>📍 Zweibrücken<br>🕓 Mittwoch, 16–18 Uhr</h2>
-<p id="weather">Wetter wird geladen…</p>
-
-<h3>So Leute, wer ist am Mittwoch am Start?</h3>
-
-<input id="name" placeholder="Dein Name" style="width:100%;padding:8px">
-
-<button id="btn-all" onclick="vote('Laufen & Essen 🏃🏃‍♀️🍻')">
-  Laufen und essen 🏃🏃‍♀️🍻 (0)
-</button>
-
-<button id="btn-run" onclick="vote('Nur Laufen 🏃🏃‍♀️')">
-  nur laufen 🏃🏃‍♀️ (0)
-</button>
-
-<button id="btn-eat" onclick="vote('Nur Essen 🍻')">
-  nur essen 🍻 (0)
-</button>
-
-<button id="btn-out" onclick="vote('Ganz raus 🛁')">
-  ganz raus 🛁 (0)
-</button>
-
-
-<h3>👇 Aktuelle Stimmen</h3>
-<ul id="results"></ul>
-
 <script>
 /* 🔥 Firebase */
 firebase.initializeApp({
@@ -50,10 +6,10 @@ firebase.initializeApp({
   projectId: "lauftreff-ad4df"
 });
 const db = firebase.firestore();
-  <script>
+
+/* 🔄 Wöchentlicher Reset (Donnerstag) */
 async function weeklyResetIfNeeded() {
   const metaRef = db.collection("meta").doc("reset");
-
   const snap = await metaRef.get();
   const lastReset = snap.exists ? snap.data().date : null;
 
@@ -61,22 +17,16 @@ async function weeklyResetIfNeeded() {
   const day = now.getDay(); // 4 = Donnerstag
   const week = getWeekNumber(now);
 
-  // Nur Donnerstag resetten
   if (day !== 4) return;
-
-  // Schon diese Woche zurückgesetzt?
   if (lastReset === week) return;
 
-  // 🔥 Votes löschen
   const votes = await db.collection("votes").get();
   const batch = db.batch();
   votes.forEach(doc => batch.delete(doc.ref));
   await batch.commit();
 
-  // Reset merken
   await metaRef.set({ date: week });
-
-  console.log("✅ Wöchentlicher Reset durchgeführt");
+  console.log("✅ Reset durchgeführt");
 }
 
 function getWeekNumber(d) {
@@ -85,13 +35,9 @@ function getWeekNumber(d) {
   const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
   return `${d.getUTCFullYear()}-${weekNo}`;
 }
-
-// Beim Laden ausführen
 weeklyResetIfNeeded();
-</script>
 
-
-/* 🗳️ Abstimmen (Name = Dokument → überschreibt alte Stimme) */
+/* 🗳️ Abstimmen */
 function vote(choice) {
   const name = document.getElementById("name").value.trim();
   if (!name) return alert("Name fehlt!");
@@ -101,12 +47,11 @@ function vote(choice) {
   });
 }
 
-/* 📊 Live-Ergebnisse */
+/* 📊 Live-Ergebnisse + Button-Zähler */
 db.collection("votes").onSnapshot(snap => {
   const ul = document.getElementById("results");
   ul.innerHTML = "";
 
-  // Zähler
   let counts = {
     "Laufen & Essen 🏃🏃‍♀️🍻": 0,
     "Nur Laufen 🏃🏃‍♀️": 0,
@@ -116,32 +61,24 @@ db.collection("votes").onSnapshot(snap => {
 
   snap.forEach(doc => {
     const choice = doc.data().choice;
-
-    // Liste unten
     ul.innerHTML += `<li>${doc.id} → ${choice}</li>`;
-
-    // Zählen
-    if (counts[choice] !== undefined) {
-      counts[choice]++;
-    }
+    if (counts[choice] !== undefined) counts[choice]++;
   });
 
-  // Buttons aktualisieren
   document.getElementById("btn-all").innerText =
-    `🏃🏃‍♀️🍻 Laufen und essen (${counts["Laufen & Essen 🏃🏃‍♀️🍻"]})`;
+    `Laufen und essen 🏃🏃‍♀️🍻 (${counts["Laufen & Essen 🏃🏃‍♀️🍻"]})`;
 
   document.getElementById("btn-run").innerText =
-    `🏃🏃‍♀️ nur laufen (${counts["Nur Laufen 🏃🏃‍♀️"]})`;
+    `nur laufen 🏃🏃‍♀️ (${counts["Nur Laufen 🏃🏃‍♀️"]})`;
 
   document.getElementById("btn-eat").innerText =
-    `🍻 nur essen (${counts["Nur Essen 🍻"]})`;
+    `nur essen 🍻 (${counts["Nur Essen 🍻"]})`;
 
   document.getElementById("btn-out").innerText =
-    `🛁 ganz raus (${counts["Ganz raus 🛁"]})`;
+    `ganz raus 🛁 (${counts["Ganz raus 🛁"]})`;
 });
 
-
-/* 🌦️ Wetter für Mittwoch 16–18 Uhr */
+/* 🌦️ Wetter */
 async function loadWeather() {
   const key = "d5c77bf99195c16c75fc8a78261769ff";
   const lat = 49.2478, lon = 7.3666;
@@ -160,12 +97,11 @@ async function loadWeather() {
     }
   });
 
-  const avg = (temps.reduce((a,b)=>a+b,0)/temps.length).toFixed(1);
-  document.getElementById("weather").innerText =
-    `🌦️ ${avg} °C · Regen: ${rain ? "Ja" : "Nein"}`;
+  if (temps.length) {
+    const avg = (temps.reduce((a,b)=>a+b,0)/temps.length).toFixed(1);
+    document.getElementById("weather").innerText =
+      `🌦️ ${avg} °C · Regen: ${rain ? "Ja" : "Nein"}`;
+  }
 }
 loadWeather();
 </script>
-
-</body>
-</html>

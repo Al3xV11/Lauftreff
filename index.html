@@ -318,10 +318,33 @@ document.getElementById("btn-out").innerHTML =
   });
 });
 
+function getTargetWednesday() {
+  const now = new Date();
+  const todayDay = now.getDay(); // 0=So, 3=Mi
+  const hour = now.getHours();
+
+  let daysUntilWednesday = (3 - todayDay + 7) % 7;
+
+  // Wenn heute Mittwoch UND schon nach 23 Uhr → nächster Mittwoch
+  if (todayDay === 3 && hour >= 23) {
+    daysUntilWednesday = 7;
+  }
+
+  const target = new Date(now);
+  target.setDate(now.getDate() + daysUntilWednesday);
+  target.setHours(0, 0, 0, 0);
+
+  return target;
+}
+
+
 /* 🌦️ Wetter */
   async function loadWeather() {
   const key = "d5c77bf99195c16c75fc8a78261769ff";
   const lat = 49.2478, lon = 7.3666;
+
+  const targetWednesday = getTargetWednesday();
+  const targetDateStr = targetWednesday.toDateString();
 
   const r = await fetch(
     `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=de&appid=${key}`
@@ -334,12 +357,13 @@ document.getElementById("btn-out").innerHTML =
   let minTemp = Infinity;
   let maxTemp = -Infinity;
 
-  details += `<h4>Mittwoch (ab jetzt)</h4>`;
+  details += `<h4>Mittwoch (${targetWednesday.toLocaleDateString("de-DE")})</h4>`;
 
   data.list.forEach(e => {
     const d = new Date(e.dt * 1000);
 
-    if (d.getDay() === 3) {
+    // NUR Ziel-Mittwoch
+    if (d.toDateString() === targetDateStr) {
       const temp = e.main.temp;
       minTemp = Math.min(minTemp, temp);
       maxTemp = Math.max(maxTemp, temp);
@@ -368,7 +392,11 @@ document.getElementById("btn-out").innerHTML =
     }
   });
 
-  if (!temps16_18.length) return;
+  if (!temps16_18.length) {
+    document.getElementById("weather").innerText =
+      "🌦️ Wetter für Mittwoch noch nicht verfügbar";
+    return;
+  }
 
   const avg = (
     temps16_18.reduce((a, b) => a + b, 0) / temps16_18.length
@@ -379,13 +407,11 @@ document.getElementById("btn-out").innerHTML =
     `🌦️ ${avg} °C · es wird ${rain16_18 ? "regnen" : "nicht regnen"}`;
 
   details =
-    `<p><strong>🌡️ Heute: ${minTemp.toFixed(1)} – ${maxTemp.toFixed(1)} °C</strong></p>` +
-    details +
-    `<p style="font-size:12px;color:#666;margin-top:10px;">
-      ℹ️ Vorhersage für Mittwoch, ab aktuellem Zeitpunkt
-    </p>`;
+    `<p><strong>🌡️ ${minTemp.toFixed(1)} – ${maxTemp.toFixed(1)} °C</strong></p>` +
+    details;
 
   weatherEl.onclick = () => openWeather(details);
 }
+
 loadWeather();
 </script>

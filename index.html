@@ -325,8 +325,8 @@ function getTargetWednesday() {
 
   let daysUntilWednesday = (3 - todayDay + 7) % 7;
 
-  // Wenn heute Mittwoch UND schon nach 23 Uhr → nächster Mittwoch
-  if (todayDay === 3 && hour >= 23) {
+  // Wenn heute Mittwoch UND schon nach 19 Uhr → nächster Mittwoch
+  if (todayDay === 3 && hour >= 19) {
     daysUntilWednesday = 7;
   }
 

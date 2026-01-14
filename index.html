@@ -289,25 +289,36 @@ async function loadWeather() {
   const data = await r.json();
 
   let temps = [], rain = false;
+  let details = "";
+
   data.list.forEach(e => {
     const d = new Date(e.dt * 1000);
     if (d.getDay() === 3 && d.getHours() >= 16 && d.getHours() <= 18) {
       temps.push(e.main.temp);
       if (e.rain) rain = true;
+
+      details += `
+        <p>
+          🕓 ${d.getHours()}:00 – 
+          🌡️ ${e.main.temp.toFixed(1)} °C –
+          ${e.weather[0].description}
+        </p>`;
     }
   });
 
-  if (temps.length) {
-    const avg = (temps.reduce((a,b)=>a+b,0)/temps.length).toFixed(1);
-    document.getElementById("weather").innerText =
-      `🌦️ ${avg} °C · es wird ${rain ? "regnen" : "nicht regnen"}`;
-    const weatherEl = document.getElementById("weather");
+  if (!temps.length) return;
+
+  const avg = (temps.reduce((a,b)=>a+b,0)/temps.length).toFixed(1);
+
+  const weatherText = `🌦️ ${avg} °C · es wird ${rain ? "regnen" : "nicht regnen"}`;
+  const weatherEl = document.getElementById("weather");
 
   weatherEl.innerText = weatherText;
 
   // Klick → Modal öffnen
   weatherEl.onclick = () => openWeather(details);
 }
-  }
-loadWeather();
+//loadWeather();
 </script>
+
+  

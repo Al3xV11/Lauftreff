@@ -122,6 +122,40 @@ li {
   cursor: pointer;
 }
 
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  animation: fadeIn 0.25s ease;
+}
+
+.modal-content {
+  background: white;
+  color: black;
+  margin: 12% auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 12px;
+  animation: slideUp 0.3s ease;
+}
+
+/* Animationen */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 </style>
   
 </head>
@@ -133,7 +167,7 @@ li {
   <div class="divider"></div>
   
   <!-- Wetter Modal -->
-<div id="weatherModal" class="modal">
+<div id="weatherModal" class="modal" onclick="closeWeather(event)">
   <div class="modal-content">
     <span class="close" onclick="closeWeather()">×</span>
     <h3>🌦️ Wetter Mittwoch 16–18 Uhr</h3>
@@ -210,14 +244,20 @@ function getWeekNumber(d) {
 }
 weeklyResetIfNeeded();
 
-  // Wetter in extra Fenster
-  function openWeather(detailsHtml) {
+// 🌦️ Wetter Modal öffnen/schließen
+function openWeather(detailsHtml) {
   document.getElementById("weatherDetails").innerHTML = detailsHtml;
   document.getElementById("weatherModal").style.display = "block";
 }
 
-function closeWeather() {
-  document.getElementById("weatherModal").style.display = "none";
+// Schließen: X oder Klick außerhalb
+function closeWeather(event) {
+  const modal = document.getElementById("weatherModal");
+
+  // Klick außerhalb des Fensters
+  if (event && event.target !== modal) return;
+
+  modal.style.display = "none";
 }
 
 /* 🗳️ Abstimmen */

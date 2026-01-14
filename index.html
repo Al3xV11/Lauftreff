@@ -210,6 +210,16 @@ function getWeekNumber(d) {
 }
 weeklyResetIfNeeded();
 
+  // Wetter in extra Fenster
+  function openWeather(detailsHtml) {
+  document.getElementById("weatherDetails").innerHTML = detailsHtml;
+  document.getElementById("weatherModal").style.display = "block";
+}
+
+function closeWeather() {
+  document.getElementById("weatherModal").style.display = "none";
+}
+
 /* 🗳️ Abstimmen */
 function vote(choice) {
   const nameInput = document.getElementById("name");
@@ -245,16 +255,6 @@ db.collection("votes").onSnapshot(snap => {
       grouped[choice].push(name);
     }
   });
-
-  // Wetter in extra Fenster
-  function openWeather(detailsHtml) {
-  document.getElementById("weatherDetails").innerHTML = detailsHtml;
-  document.getElementById("weatherModal").style.display = "block";
-}
-
-function closeWeather() {
-  document.getElementById("weatherModal").style.display = "none";
-}
 
   // Buttons aktualisieren
 document.getElementById("btn-all").innerHTML =

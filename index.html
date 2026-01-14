@@ -90,6 +90,38 @@ li {
   margin: 12px 0;        /* Abstand oben/unten */
 }
 
+.weather-link {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+}
+
+.modal-content {
+  background: white;
+  color: black;
+  margin: 15% auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 10px;
+}
+
+.close {
+  float: right;
+  font-size: 24px;
+  cursor: pointer;
+}
+
 </style>
   
 </head>
@@ -97,8 +129,17 @@ li {
 <body>
 
 <h2>📍 Zweibrücken<br>🕓 Mittwoch, 16–18 Uhr</h2>
-<p id="weather">Wetter wird geladen…</p>
+<p id="weather" class="weather-link">Wetter wird geladen…</p>
   <div class="divider"></div>
+  
+  <!-- Wetter Modal -->
+<div id="weatherModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeWeather()">×</span>
+    <h3>🌦️ Wetter Mittwoch 16–18 Uhr</h3>
+    <div id="weatherDetails">Lade Details…</div>
+  </div>
+</div>
 
 <h3>So Leute, wer ist am Start?</h3>
 
@@ -205,6 +246,16 @@ db.collection("votes").onSnapshot(snap => {
     }
   });
 
+  // Wetter in extra Fenster
+  function openWeather(detailsHtml) {
+  document.getElementById("weatherDetails").innerHTML = detailsHtml;
+  document.getElementById("weatherModal").style.display = "block";
+}
+
+function closeWeather() {
+  document.getElementById("weatherModal").style.display = "none";
+}
+
   // Buttons aktualisieren
 document.getElementById("btn-all").innerHTML =
   `Laufen und essen 🏃🏃‍♀️🍻 <span class="count">${grouped["Laufen & Essen 🏃🏃‍♀️🍻"].length}</span>`;
@@ -250,7 +301,13 @@ async function loadWeather() {
     const avg = (temps.reduce((a,b)=>a+b,0)/temps.length).toFixed(1);
     document.getElementById("weather").innerText =
       `🌦️ ${avg} °C · es wird ${rain ? "regnen" : "nicht regnen"}`;
-  }
+    const weatherEl = document.getElementById("weather");
+
+  weatherEl.innerText = weatherText;
+
+  // Klick → Modal öffnen
+  weatherEl.onclick = () => openWeather(details);
 }
+  }
 loadWeather();
 </script>

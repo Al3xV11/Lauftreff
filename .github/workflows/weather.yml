@@ -14,22 +14,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Fetch OpenWeather Data
-        env:
-          OPENWEATHER_KEY: ${{ secrets.OPENWEATHER_KEY }}
-        run: |
-          echo "📡 Hol Wetterdaten..."
-          LAT=49.2478
-          LON=7.3666
-          DATA=$(curl -s "https://api.openweathermap.org/data/2.5/forecast?lat=$LAT&lon=$LON&units=metric&lang=de&appid=$OPENWEATHER_KEY")
-          mkdir -p data
-          echo "$DATA" > data/weather.json
-          echo "✅ Wetterdaten gespeichert in data/weather.json"
+- name: Fetch OpenWeather Data
+  env:
+    OPENWEATHER_KEY: ${{ secrets.OPENWEATHER_KEY }}
+  run: |
+    echo "📡 Hol Wetterdaten..."
+    LAT=49.2478
+    LON=7.3666
+    mkdir -p data
+    DATA=$(curl -s "https://api.openweathermap.org/data/2.5/forecast?lat=$LAT&lon=$LON&units=metric&lang=de&appid=$OPENWEATHER_KEY")
+    if [ -z "$DATA" ]; then
+      echo "❌ Keine Daten erhalten, Workflow abgebrochen."
+      exit 1
+    fi
+    echo "$DATA" > data/weather.json
+    echo "✅ Wetterdaten gespeichert in data/weather.json"
 
-      - name: Commit weather.json
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add data/weather.json
-          git commit -m "Update weather.json" || echo "Keine Änderungen"
-          git push
+

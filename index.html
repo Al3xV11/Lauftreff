@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mittwoch Umfrage</title>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -16,157 +13,86 @@ body {
   padding: 12px;
 }
 
-h2 {
-  font-size: 1.3em;
-  text-align: center;
-}
-
-h3 {
-  margin-top: 24px;
-}
+h2 { font-size: 1.3em; text-align: center; }
+h3 { margin-top: 24px; }
 
 input {
   width: 100%;
   padding: 12px;
-  font-size: 16px; /* verhindert iOS-Zoom */
+  font-size: 16px;
   margin-bottom: 10px;
   box-sizing: border-box;
 }
 
 button {
-  display: flex;               /* Flexbox aktiv */
-  justify-content: space-between; /* Text links, Zahl rechts */
-  align-items: center;         /* Vertikal zentriert */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
   padding: 14px;
   font-size: 18px;
   margin: 6px 0;
   border-radius: 8px;
   border: none;
-  background: #1565c0;   /* Blau */
-  color: white;          /* Weiße Schrift */
+  background: #1565c0;
+  color: white;
   cursor: pointer;
 }
 
-button:active {
-  background: #0d47a1;   /* dunkleres Blau beim Drücken */
-}
+button:active { background: #0d47a1; }
 
-
-#weather {
-  text-align: center;
-  font-size: 1.1em;
-  margin-bottom: 16px;
-}
-
-ul {
-  padding-left: 0;
-}
-
-li {
-  list-style: none;
-  padding: 6px 0;
-  line-height: 1.4;
-  font-size: 16px;
-}
-  
 .count {
   display: inline-block;
-  background-color: #1b5e20; /* dunkelgrün */
+  background-color: #1b5e20;
   color: white;
   border-radius: 50%;
-  width: 28px;       /* Kreisgröße */
+  width: 28px;
   height: 28px;
   text-align: center;
-  line-height: 28px; /* Zahl zentrieren */
+  line-height: 28px;
   font-weight: bold;
   font-size: 16px;
 }
 
-  
 .divider {
-  width: 100%;           /* horizontaler Bereich */
-  border-top: 2px solid #aaa; /* Linie */
-  margin: 12px 0;        /* Abstand oben/unten */
+  width: 100%;
+  border-top: 2px solid #aaa;
+  margin: 12px 0;
 }
 
-.weather-link {
-  cursor: pointer;
-  text-decoration: underline;
-}
+.weather-link { cursor: pointer; text-decoration: underline; }
 
 .modal {
   display: none;
   position: fixed;
   z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
   background: rgba(0,0,0,0.6);
 }
 
 .modal-content {
-  background: white;
-  color: black;
-  margin: 15% auto;
-  padding: 20px;
-  width: 90%;
-  max-width: 400px;
-  border-radius: 10px;
-}
-
-.close {
-  float: right;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  animation: fadeIn 0.25s ease;
-}
-
-.modal-content {
-  background: white;
-  color: black;
-  margin: 12% auto;
-  padding: 20px;
-  width: 90%;
-  max-width: 400px;
+  background: white; color: black;
+  margin: 12% auto; padding: 20px;
+  width: 90%; max-width: 400px;
   border-radius: 12px;
   animation: slideUp 0.3s ease;
 }
 
-/* Animationen */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+.close { float: right; font-size: 24px; cursor: pointer; }
 
-@keyframes slideUp {
-  from { transform: translateY(30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
 </style>
-  
 </head>
 
 <body>
 
 <h2>📍 Zweibrücken<br>🕓 Mittwoch, 16–18 Uhr</h2>
 <p id="weather" class="weather-link">Wetter wird geladen…</p>
-  <div class="divider"></div>
-  
-  <!-- Wetter Modal -->
+<div class="divider"></div>
+
+<!-- Wetter Modal -->
 <div id="weatherModal" class="modal" onclick="closeWeather(event)">
   <div class="modal-content">
     <span class="close" onclick="closeWeather()">×</span>
@@ -176,242 +102,172 @@ li {
 </div>
 
 <h3>So Leute, wer ist am Start?</h3>
-
 <input id="name" placeholder="Dein Name" style="width:100%;padding:8px">
 
-<button id="btn-all" onclick="vote('Laufen & Essen 🏃🏃‍♀️🍻')">
-  Laufen und essen 🏃🏃‍♀️🍻 (0)
-</button>
-
-<button id="btn-run" onclick="vote('Nur Laufen 🏃🏃‍♀️')">
-  nur laufen 🏃🏃‍♀️ (0)
-</button>
-
-<button id="btn-eat" onclick="vote('Nur Essen 🍻')">
-  nur essen 🍻 (0)
-</button>
-
-<button id="btn-out" onclick="vote('Ganz raus 🛁')">
-  ganz raus 🛁 (0)
-</button>
-
+<button id="btn-all" onclick="vote('Laufen & Essen 🏃🏃‍♀️🍻')">Laufen und essen 🏃🏃‍♀️🍻 (0)</button>
+<button id="btn-run" onclick="vote('Nur Laufen 🏃🏃‍♀️')">nur laufen 🏃🏃‍♀️ (0)</button>
+<button id="btn-eat" onclick="vote('Nur Essen 🍻')">nur essen 🍻 (0)</button>
+<button id="btn-out" onclick="vote('Ganz raus 🛁')">ganz raus 🛁 (0)</button>
 
 <h3>👇 Aktuelle Stimmen</h3>
 <ul id="results" style="margin-top:12px;"></ul>
-<script>
-/* 🔥 Firebase */
-firebase.initializeApp({
-  apiKey: "AIzaSyDi3ZJKDa2o3YX9XmsTMqPu7R3U9DwLqiA",
-  authDomain: "lauftreff-ad4df.firebaseapp.com",
-  projectId: "lauftreff-ad4df"
-});
-const db = firebase.firestore();
 
-// Name aus LocalStorage laden
-const nameInput = document.getElementById("name");
-const savedName = localStorage.getItem("userName");
-if (savedName) {
-  nameInput.value = savedName;
-}
+<script type="module">
+  // 1️⃣ Firebase Modul-Imports
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, doc, setDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
-/* 🔄 Wöchentlicher Reset (Donnerstag) */
-async function weeklyResetIfNeeded() {
-  const metaRef = db.collection("meta").doc("reset");
-  const snap = await metaRef.get();
-  const lastReset = snap.exists ? snap.data().date : null;
-
-  const now = new Date();
-  const day = now.getDay(); // 4 = Donnerstag
-  const week = getWeekNumber(now);
-
-  if (day !== 4) return;
-  if (lastReset === week) return;
-
-  const votes = await db.collection("votes").get();
-  const batch = db.batch();
-  votes.forEach(doc => batch.delete(doc.ref));
-  await batch.commit();
-
-  await metaRef.set({ date: week });
-  console.log("✅ Reset durchgeführt");
-}
-
-function getWeekNumber(d) {
-  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-  const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-  return `${d.getUTCFullYear()}-${weekNo}`;
-}
-weeklyResetIfNeeded();
-
-// 🌦️ Wetter Modal öffnen/schließen
-function openWeather(detailsHtml) {
-  document.getElementById("weatherDetails").innerHTML = detailsHtml;
-  document.getElementById("weatherModal").style.display = "block";
-}
-
-// Schließen: X oder Klick außerhalb
-function closeWeather(event) {
-  const modal = document.getElementById("weatherModal");
-
-  // Klick außerhalb des Fensters
-  if (event && event.target !== modal) return;
-
-  modal.style.display = "none";
-}
-
-/* 🗳️ Abstimmen */
-function vote(choice) {
-  const nameInput = document.getElementById("name");
-  const name = nameInput.value.trim();
-  if (!name) return alert("Name fehlt!");
-
-  // Name speichern
-  localStorage.setItem("userName", name);
-
-  db.collection("votes").doc(name).set({
-    choice: choice,
-    time: new Date()
-  });
-}
-
-/* 📊 Live-Ergebnisse + Button-Zähler */
-db.collection("votes").onSnapshot(snap => {
-  const ul = document.getElementById("results");
-  ul.innerHTML = "";
-
-  // Namen pro Auswahl sammeln
-  let grouped = {
-    "Laufen & Essen 🏃🏃‍♀️🍻": [],
-    "Nur Laufen 🏃🏃‍♀️": [],
-    "Nur Essen 🍻": [],
-    "Ganz raus 🛁": []
+  // 2️⃣ Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDi3ZJKDa2o3YX9XmsTMqPu7R3U9DwLqiA",
+    authDomain: "lauftreff-ad4df.firebaseapp.com",
+    projectId: "lauftreff-ad4df"
   };
 
-  snap.forEach(doc => {
-    const name = doc.id;
-    const choice = doc.data().choice;
-    if (grouped[choice]) {
-      grouped[choice].push(name);
-    }
+  // 3️⃣ App initialisieren
+  const app = initializeApp(firebaseConfig);
+
+  // 4️⃣ App Check initialisieren (Site Key vom Firmenlauf)
+  initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider("6LdZpnYsAAAAANqU6pXftGa3Sq_TtVM6aOoIKYsG"),
+    isTokenAutoRefreshEnabled: true
   });
 
-  // Buttons aktualisieren
-document.getElementById("btn-all").innerHTML =
-  `Laufen und essen 🏃🏃‍♀️🍻 <span class="count">${grouped["Laufen & Essen 🏃🏃‍♀️🍻"].length}</span>`;
+  // 5️⃣ Firestore Referenzen
+  const db = getFirestore(app);
+  const votesRef = collection(db, "votes");
+  const metaRef = collection(db, "meta");
 
-document.getElementById("btn-run").innerHTML =
-  `nur laufen 🏃🏃‍♀️ <span class="count">${grouped["Nur Laufen 🏃🏃‍♀️"].length}</span>`;
+  // 6️⃣ Name aus LocalStorage
+  const nameInput = document.getElementById("name");
+  const savedName = localStorage.getItem("userName");
+  if (savedName) nameInput.value = savedName;
 
-document.getElementById("btn-eat").innerHTML =
-  `nur essen 🍻 <span class="count">${grouped["Nur Essen 🍻"].length}</span>`;
+  // 7️⃣ Wöchentlicher Reset
+  async function weeklyResetIfNeeded() {
+    const snap = await getDocs(metaRef);
+    const resetDoc = snap.docs.find(d => d.id === "reset");
+    const lastReset = resetDoc ? resetDoc.data().date : null;
 
-document.getElementById("btn-out").innerHTML =
-  `ganz raus 🛁 <span class="count">${grouped["Ganz raus 🛁"].length}</span>`;
+    const now = new Date();
+    const day = now.getDay(); // 4 = Donnerstag
+    const week = getWeekNumber(now);
 
+    if (day !== 4 || lastReset === week) return;
 
-  // Zusammengefasste Anzeige unten
-  Object.entries(grouped).forEach(([choice, names]) => {
-    if (names.length > 0) {
-      ul.innerHTML += `<li><strong>${choice}:</strong> ${names.join(", ")}</li>`;
-    }
-  });
-});
+    const votesSnap = await getDocs(votesRef);
+    for (const d of votesSnap.docs) await setDoc(doc(db, "votes", d.id), {}); // optional: batch löschen
 
-function getTargetWednesday() {
-  const now = new Date();
-  const todayDay = now.getDay(); // 0=So, 3=Mi
-  const hour = now.getHours();
-
-  let daysUntilWednesday = (3 - todayDay + 7) % 7;
-
-  // Wenn heute Mittwoch UND schon nach 19 Uhr → nächster Mittwoch
-  if (todayDay === 3 && hour >= 19) {
-    daysUntilWednesday = 7;
+    await setDoc(doc(db, "meta", "reset"), { date: week });
+    console.log("✅ Reset durchgeführt");
   }
 
-  const target = new Date(now);
-  target.setDate(now.getDate() + daysUntilWednesday);
-  target.setHours(0, 0, 0, 0);
+  function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  }
+  weeklyResetIfNeeded();
 
-  return target;
-}
+  // 8️⃣ Abstimmen
+  window.vote = async function(choice) {
+    const name = nameInput.value.trim();
+    if (!name) return alert("Name fehlt!");
+    localStorage.setItem("userName", name);
 
+    await setDoc(doc(votesRef, name), {
+      choice,
+      time: new Date()
+    });
+  }
 
-/* 🌦️ Wetter */
+  // 9️⃣ Live-Ergebnisse
+  onSnapshot(votesRef, snap => {
+    const ul = document.getElementById("results");
+    ul.innerHTML = "";
+
+    const grouped = {
+      "Laufen & Essen 🏃🏃‍♀️🍻": [],
+      "Nur Laufen 🏃🏃‍♀️": [],
+      "Nur Essen 🍻": [],
+      "Ganz raus 🛁": []
+    };
+
+    snap.forEach(doc => {
+      const name = doc.id;
+      const choice = doc.data().choice;
+      if (grouped[choice]) grouped[choice].push(name);
+    });
+
+    document.getElementById("btn-all").innerHTML =
+      `Laufen und essen 🏃🏃‍♀️🍻 <span class="count">${grouped["Laufen & Essen 🏃🏃‍♀️🍻"].length}</span>`;
+    document.getElementById("btn-run").innerHTML =
+      `nur laufen 🏃🏃‍♀️ <span class="count">${grouped["Nur Laufen 🏃🏃‍♀️"].length}</span>`;
+    document.getElementById("btn-eat").innerHTML =
+      `nur essen 🍻 <span class="count">${grouped["Nur Essen 🍻"].length}</span>`;
+    document.getElementById("btn-out").innerHTML =
+      `ganz raus 🛁 <span class="count">${grouped["Ganz raus 🛁"].length}</span>`;
+
+    Object.entries(grouped).forEach(([choice, names]) => {
+      if (names.length > 0) ul.innerHTML += `<li><strong>${choice}:</strong> ${names.join(", ")}</li>`;
+    });
+  });
+
+  // 10️⃣ Wetter-Funktionen bleiben unverändert
+  function openWeather(detailsHtml) {
+    document.getElementById("weatherDetails").innerHTML = detailsHtml;
+    document.getElementById("weatherModal").style.display = "block";
+  }
+  function closeWeather(event) {
+    const modal = document.getElementById("weatherModal");
+    if (event && event.target !== modal) return;
+    modal.style.display = "none";
+  }
   async function loadWeather() {
-  const key = "3b5ea25eab80f70a2ce2d8c524513ed5";
-  const lat = 49.2478, lon = 7.3666;
+    const key = "3b5ea25eab80f70a2ce2d8c524513ed5";
+    const lat = 49.2478, lon = 7.3666;
+    const now = new Date();
+    const targetWednesday = new Date(now);
+    const day = now.getDay();
+    const hour = now.getHours();
+    let daysUntilWednesday = (3 - day + 7) % 7;
+    if (day === 3 && hour >= 19) daysUntilWednesday = 7;
+    targetWednesday.setDate(now.getDate() + daysUntilWednesday);
+    targetWednesday.setHours(0,0,0,0);
+    const targetDateStr = targetWednesday.toDateString();
 
-  const targetWednesday = getTargetWednesday();
-  const targetDateStr = targetWednesday.toDateString();
+    const r = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=de&appid=${key}`);
+    const data = await r.json();
 
-  const r = await fetch(
-    `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=de&appid=${key}`
-  );
-  const data = await r.json();
+    let temps16_18 = [], rain16_18 = false;
+    let details = `<h4>Mittwoch (${targetWednesday.toLocaleDateString("de-DE")})</h4>`;
+    let minTemp = Infinity, maxTemp = -Infinity;
 
-  let temps16_18 = [];
-  let rain16_18 = false;
-  let details = "";
-  let minTemp = Infinity;
-  let maxTemp = -Infinity;
-
-  details += `<h4>Mittwoch (${targetWednesday.toLocaleDateString("de-DE")})</h4>`;
-
-  data.list.forEach(e => {
-    const d = new Date(e.dt * 1000);
-
-    // NUR Ziel-Mittwoch
-    if (d.toDateString() === targetDateStr) {
-      const temp = e.main.temp;
-      minTemp = Math.min(minTemp, temp);
-      maxTemp = Math.max(maxTemp, temp);
-
-      const hour = d.getHours();
-      let section = "🌙 Nacht";
-      if (hour >= 6) section = "🌅 Morgen";
-      if (hour >= 12) section = "☀️ Nachmittag";
-      if (hour >= 18) section = "🌆 Abend";
-
-      const rainClass = e.rain ? "style='color:#1565c0;font-weight:bold'" : "";
-
-      details += `
-        <p ${rainClass}>
-          ${section} · 🕓 ${hour.toString().padStart(2, "0")}:00 –
-          🌡️ ${temp.toFixed(1)} °C –
-          ${e.weather[0].description}
-        </p>
-      `;
-
-      // Hauptanzeige 16–18 Uhr
-      if (hour >= 16 && hour <= 18) {
-        temps16_18.push(temp);
-        if (e.rain) rain16_18 = true;
+    data.list.forEach(e => {
+      const d = new Date(e.dt * 1000);
+      if (d.toDateString() === targetDateStr) {
+        const temp = e.main.temp;
+        minTemp = Math.min(minTemp, temp);
+        maxTemp = Math.max(maxTemp, temp);
+        const hour = d.getHours();
+        let section = "🌙 Nacht";
+        if (hour >=6) section="🌅 Morgen";
+        if (hour >=12) section="☀️ Nachmittag";
+        if (hour >=18) section="🌆 Abend";
+        const rainClass = e.rain ? "style='color:#1565c0;font-weight:bold'" : "";
+        details += `<p ${rainClass}>${section} · 🕓 ${hour.toString().padStart(2,"0")}:00 – 🌡️ ${temp.toFixed(1)} °C – ${e.weather[0].description}</p>`;
+        if(hour>=16 && hour<=18) { temps16_18.push(temp); if(e.rain) rain16_18=true; }
       }
-    }
-  });
+    });
 
-  if (!temps16_18.length) {
-    document.getElementById("weather").innerText =
-      "🌦️ Wetter für Mittwoch noch nicht verfügbar";
-    return;
+    if(!temps16_18.length) { document.getElementById("weather").innerText="🌦️ Wetter für Mittwoch noch nicht verfügbar"; return; }
+    const avg = (temps16_18.reduce((a,b)=>a+b,0)/temps16_18.length).toFixed(1);
+    document.getElementById("weather").innerText=`🌦️ ${avg} °C · es wird ${rain16_18?"regnen":"nicht regnen"}`;
+    details = `<p><strong>🌡️ ${minTemp.toFixed(1)} – ${maxTemp.toFixed(1)} °C</strong></p>` + details;
+    document.getElementById("weather").onclick = ()=>openWeather(details);
   }
-
-  const avg = (
-    temps16_18.reduce((a, b) => a + b, 0) / temps16_18.length
-  ).toFixed(1);
-
-  const weatherEl = document.getElementById("weather");
-  weatherEl.innerText =
-    `🌦️ ${avg} °C · es wird ${rain16_18 ? "regnen" : "nicht regnen"}`;
-
-  details =
-    `<p><strong>🌡️ ${minTemp.toFixed(1)} – ${maxTemp.toFixed(1)} °C</strong></p>` +
-    details;
-
-  weatherEl.onclick = () => openWeather(details);
-}
-
-loadWeather();
+  loadWeather();
 </script>
+</body>
+</html>

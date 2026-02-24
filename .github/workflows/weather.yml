@@ -1,6 +1,5 @@
 name: Fetch OpenWeather Data
 
-# Workflow kann manuell gestartet werden und bei Push auf main
 on:
   workflow_dispatch:
   push:
@@ -15,8 +14,6 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Test: Wetterdaten abrufen
-        env:
-          OPENWEATHER_KEY: ${{ secrets.OPENWEATHER_KEY }}
         run: |
           echo "📡 Hol Wetterdaten..."
           LAT=49.2478
@@ -29,3 +26,5 @@ jobs:
           fi
           echo "$DATA" > data/weather.json
           echo "✅ Wetterdaten gespeichert in data/weather.json"
+        env:
+          OPENWEATHER_KEY: ${{ secrets.OPENWEATHER_KEY }}

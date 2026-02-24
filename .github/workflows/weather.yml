@@ -1,33 +1,31 @@
 name: Fetch OpenWeather Data
 
-# Workflow wird bei jedem Push auf main oder manuell ausgelöst
+# Workflow kann manuell gestartet werden und bei Push auf main
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
+  push:
+    branches: [main]
 
 jobs:
   fetch-weather:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Repository auschecken
         uses: actions/checkout@v3
 
-- name: Fetch OpenWeather Data
-  env:
-    OPENWEATHER_KEY: ${{ secrets.OPENWEATHER_KEY }}
-  run: |
-    echo "📡 Hol Wetterdaten..."
-    LAT=49.2478
-    LON=7.3666
-    mkdir -p data
-    DATA=$(curl -s "https://api.openweathermap.org/data/2.5/forecast?lat=$LAT&lon=$LON&units=metric&lang=de&appid=$OPENWEATHER_KEY")
-    if [ -z "$DATA" ]; then
-      echo "❌ Keine Daten erhalten, Workflow abgebrochen."
-      exit 1
-    fi
-    echo "$DATA" > data/weather.json
-    echo "✅ Wetterdaten gespeichert in data/weather.json"
-
-
+      - name: Test: Wetterdaten abrufen
+        env:
+          OPENWEATHER_KEY: ${{ secrets.OPENWEATHER_KEY }}
+        run: |
+          echo "📡 Hol Wetterdaten..."
+          LAT=49.2478
+          LON=7.3666
+          mkdir -p data
+          DATA=$(curl -s "https://api.openweathermap.org/data/2.5/forecast?lat=$LAT&lon=$LON&units=metric&lang=de&appid=$OPENWEATHER_KEY")
+          if [ -z "$DATA" ]; then
+            echo "❌ Keine Daten erhalten, Workflow abgebrochen."
+            exit 1
+          fi
+          echo "$DATA" > data/weather.json
+          echo "✅ Wetterdaten gespeichert in data/weather.json"

@@ -57,11 +57,14 @@ import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com
 document.addEventListener("DOMContentLoaded", async ()=>{
 
   // 🔑 Firebase initialisieren
-  const firebaseConfig = {
-    apiKey: "AIzaSyDi3ZJKDa2o3YX9XmsTMqPu7R3U9DwLqiA",
-    authDomain: "lauftreff-ad4df.firebaseapp.com",
-    projectId: "lauftreff-ad4df"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyDfx5EL5raG8vDcaEAGFiIfQU1tLyMl7uk",
+  authDomain: "lauftreff-ad4df.firebaseapp.com",
+  projectId: "lauftreff-ad4df",
+  storageBucket: "lauftreff-ad4df.firebasestorage.app",
+  messagingSenderId: "693199438592",
+  appId: "1:693199438592:web:32ec3ca5b0a932cd90a9e5"
+};
   const app = initializeApp(firebaseConfig);
 
   // 🔒 App Check initialisieren

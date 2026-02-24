@@ -5,31 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mittwoch Umfrage</title>
 
-<script type="module">
-  // 🔥 Firebase Modular Import
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
-
-  // 🔑 Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyDi3ZJKDa2o3YX9XmsTMqPu7R3U9DwLqiA",
-    authDomain: "lauftreff-ad4df.firebaseapp.com",
-    projectId: "lauftreff-ad4df"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // 🔒 App Check
-  initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider("6LdZpnYsAAAAANqU6pXftGa3Sq_TtVM6aOoIKYsG"),
-    isTokenAutoRefreshEnabled: true
-  });
-
-  window.db = db; // global, damit vote() funktioniert
-</script>
-
 <style>
 body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 12px; }
 h2 { font-size: 1.3em; text-align: center; }
@@ -37,12 +12,11 @@ h3 { margin-top: 24px; }
 input { width: 100%; padding: 12px; font-size: 16px; margin-bottom: 10px; box-sizing: border-box; }
 button { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 14px; font-size: 18px; margin: 6px 0; border-radius: 8px; border: none; background: #1565c0; color: white; cursor: pointer; }
 button:active { background: #0d47a1; }
-#weather { text-align: center; font-size: 1.1em; margin-bottom: 16px; }
+#weather { text-align: center; font-size: 1.1em; margin-bottom: 16px; cursor: pointer; text-decoration: underline; }
 ul { padding-left: 0; }
 li { list-style: none; padding: 6px 0; line-height: 1.4; font-size: 16px; }
 .count { display: inline-block; background-color: #1b5e20; color: white; border-radius: 50%; width: 28px; height: 28px; text-align: center; line-height: 28px; font-weight: bold; font-size: 16px; }
 .divider { width: 100%; border-top: 2px solid #aaa; margin: 12px 0; }
-.weather-link { cursor: pointer; text-decoration: underline; }
 .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
 .modal-content { background: white; color: black; margin: 12% auto; padding: 20px; width: 90%; max-width: 400px; border-radius: 12px; }
 .close { float: right; font-size: 24px; cursor: pointer; }
@@ -50,8 +24,9 @@ li { list-style: none; padding: 6px 0; line-height: 1.4; font-size: 16px; }
 </head>
 
 <body>
+
 <h2>📍 Zweibrücken<br>🕓 Mittwoch, 16–18 Uhr</h2>
-<p id="weather" class="weather-link">Wetter wird geladen…</p>
+<p id="weather">Wetter wird geladen…</p>
 <div class="divider"></div>
 
 <!-- Wetter Modal -->
@@ -75,86 +50,121 @@ li { list-style: none; padding: 6px 0; line-height: 1.4; font-size: 16px; }
 <ul id="results" style="margin-top:12px;"></ul>
 
 <script type="module">
-import { collection, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
-// Name aus LocalStorage laden
-const nameInput = document.getElementById("name");
-const savedName = localStorage.getItem("userName");
-if(savedName) nameInput.value = savedName;
+document.addEventListener("DOMContentLoaded", ()=>{
 
-// Wetter Modal
-const weatherModal = document.getElementById("weatherModal");
-document.getElementById("closeBtn").addEventListener("click", ()=> weatherModal.style.display="none");
-weatherModal.addEventListener("click", (e)=>{ if(e.target===weatherModal) weatherModal.style.display="none"; });
-document.getElementById("weather").addEventListener("click", ()=> weatherModal.style.display="block");
+  // 🔑 Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyDi3ZJKDa2o3YX9XmsTMqPu7R3U9DwLqiA",
+    authDomain: "lauftreff-ad4df.firebaseapp.com",
+    projectId: "lauftreff-ad4df"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-// Abstimmung
-function vote(choice){
-  const name = nameInput.value.trim();
-  if(!name) return alert("Name fehlt!");
-  localStorage.setItem("userName", name);
-  setDoc(doc(db,"votes",name),{ choice, time: new Date() });
-}
-
-// Button Eventlistener
-document.getElementById("btn-all").addEventListener("click", ()=> vote("Laufen & Essen 🏃🏃‍♀️🍻"));
-document.getElementById("btn-run").addEventListener("click", ()=> vote("Nur Laufen 🏃🏃‍♀️"));
-document.getElementById("btn-eat").addEventListener("click", ()=> vote("Nur Essen 🍻"));
-document.getElementById("btn-out").addEventListener("click", ()=> vote("Ganz raus 🛁"));
-
-// Live Ergebnisse
-const groupedChoices = {
-  "Laufen & Essen 🏃🏃‍♀️🍻": "btn-all",
-  "Nur Laufen 🏃🏃‍♀️": "btn-run",
-  "Nur Essen 🍻": "btn-eat",
-  "Ganz raus 🛁": "btn-out"
-};
-
-onSnapshot(collection(db,"votes"), snap=>{
-  const ul = document.getElementById("results");
-  ul.innerHTML="";
-  let counts={};
-  for(const key in groupedChoices) counts[key]=[];
-  snap.forEach(doc=>{
-    const choice = doc.data().choice;
-    if(groupedChoices[choice]) counts[choice].push(doc.id);
+  // 🔒 App Check
+  initializeAppCheck(app,{
+    provider: new ReCaptchaV3Provider("6LdZpnYsAAAAANqU6pXftGa3Sq_TtVM6aOoIKYsG"),
+    isTokenAutoRefreshEnabled: true
   });
-  for(const [choice, names] of Object.entries(counts)){
-    document.getElementById(groupedChoices[choice]).innerHTML = `${choice} <span class="count">${names.length}</span>`;
-    if(names.length>0) ul.innerHTML+=`<li><strong>${choice}:</strong> ${names.join(", ")}</li>`;
-  }
-});
 
-// Wetter laden (optional)
-async function loadWeather(){
-  const key="3b5ea25eab80f70a2ce2d8c524513ed5";
-  const lat=49.2478, lon=7.3666;
-  const target=new Date();
-  target.setDate(target.getDate() + (3 - target.getDay() + 7)%7);
-  target.setHours(0,0,0,0);
-  const targetDateStr=target.toDateString();
-  const r=await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=de&appid=${key}`);
-  const data=await r.json();
-  let temps16_18=[], rain16_18=false, details="", minTemp=Infinity, maxTemp=-Infinity;
-  details+=`<h4>Mittwoch (${target.toLocaleDateString("de-DE")})</h4>`;
-  data.list.forEach(e=>{
-    const d=new Date(e.dt*1000);
-    if(d.toDateString()===targetDateStr){
-      const temp=e.main.temp;
-      minTemp=Math.min(minTemp,temp);
-      maxTemp=Math.max(maxTemp,temp);
-      const hour=d.getHours();
-      let section="🌙 Nacht"; if(hour>=6) section="🌅 Morgen"; if(hour>=12) section="☀️ Nachmittag"; if(hour>=18) section="🌆 Abend";
-      const rainClass = e.rain ? "style='color:#1565c0;font-weight:bold'" : "";
-      details+=`<p ${rainClass}>${section} · 🕓 ${hour.toString().padStart(2,"0")}:00 – 🌡️ ${temp.toFixed(1)} °C – ${e.weather[0].description}</p>`;
-      if(hour>=16 && hour<=18){ temps16_18.push(temp); if(e.rain) rain16_18=true; }
+  window.db = db; // global für vote()
+
+  // Name aus LocalStorage laden
+  const nameInput = document.getElementById("name");
+  const savedName = localStorage.getItem("userName");
+  if(savedName) nameInput.value = savedName;
+
+  // Modal
+  const weatherModal = document.getElementById("weatherModal");
+  document.getElementById("closeBtn").addEventListener("click", ()=> weatherModal.style.display="none");
+  weatherModal.addEventListener("click",(e)=>{ if(e.target===weatherModal) weatherModal.style.display="none"; });
+  document.getElementById("weather").addEventListener("click", ()=> weatherModal.style.display="block");
+
+  // Abstimmung
+  function vote(choice){
+    const name = nameInput.value.trim();
+    if(!name) return alert("Name fehlt!");
+    localStorage.setItem("userName", name);
+    setDoc(doc(db,"votes",name),{ choice, time: new Date() });
+  }
+
+  document.getElementById("btn-all").addEventListener("click", ()=> vote("Laufen & Essen 🏃🏃‍♀️🍻"));
+  document.getElementById("btn-run").addEventListener("click", ()=> vote("Nur Laufen 🏃🏃‍♀️"));
+  document.getElementById("btn-eat").addEventListener("click", ()=> vote("Nur Essen 🍻"));
+  document.getElementById("btn-out").addEventListener("click", ()=> vote("Ganz raus 🛁"));
+
+  // Live Ergebnisse
+  const groupedChoices = {
+    "Laufen & Essen 🏃🏃‍♀️🍻": "btn-all",
+    "Nur Laufen 🏃🏃‍♀️": "btn-run",
+    "Nur Essen 🍻": "btn-eat",
+    "Ganz raus 🛁": "btn-out"
+  };
+
+  onSnapshot(collection(db,"votes"), snap=>{
+    const ul = document.getElementById("results");
+    ul.innerHTML="";
+    let counts={};
+    for(const key in groupedChoices) counts[key]=[];
+    snap.forEach(doc=>{
+      const choice = doc.data().choice;
+      if(groupedChoices[choice]) counts[choice].push(doc.id);
+    });
+    for(const [choice, names] of Object.entries(counts)){
+      document.getElementById(groupedChoices[choice]).innerHTML = `${choice} <span class="count">${names.length}</span>`;
+      if(names.length>0) ul.innerHTML+=`<li><strong>${choice}:</strong> ${names.join(", ")}</li>`;
     }
   });
-  if(!temps16_18.length){ document.getElementById("weather").innerText="🌦️ Wetter für Mittwoch noch nicht verfügbar"; return; }
-  const avg=(temps16_18.reduce((a,b)=>a+b,0)/temps16_18.length).toFixed(1);
-  document.getElementById("weather").innerText=`🌦️ ${avg} °C · es wird ${rain16_18 ? "regnen":"nicht regnen"}`;
-}
-loadWeather();
+
+  // 🌦️ Wetter laden
+  async function loadWeather(){
+    const key = "3b5ea25eab80f70a2ce2d8c524513ed5";
+    const lat=49.2478, lon=7.3666;
+    const now = new Date();
+    let daysUntilWed = (3 - now.getDay() + 7) % 7;
+    if(now.getDay()===3 && now.getHours()>=19) daysUntilWed=7;
+    const target = new Date();
+    target.setDate(now.getDate()+daysUntilWed);
+    target.setHours(0,0,0,0);
+    const targetDateStr = target.toDateString();
+
+    const r = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=de&appid=${key}`);
+    const data = await r.json();
+
+    let temps16_18=[], rain16_18=false, details=`<h4>Mittwoch (${target.toLocaleDateString("de-DE")})</h4>`, minTemp=Infinity, maxTemp=-Infinity;
+
+    data.list.forEach(e=>{
+      const d=new Date(e.dt*1000);
+      if(d.toDateString()===targetDateStr){
+        const temp = e.main.temp;
+        minTemp=Math.min(minTemp,temp);
+        maxTemp=Math.max(maxTemp,temp);
+        const hour=d.getHours();
+        let section="🌙 Nacht";
+        if(hour>=6) section="🌅 Morgen";
+        if(hour>=12) section="☀️ Nachmittag";
+        if(hour>=18) section="🌆 Abend";
+        const rainClass = e.rain ? "style='color:#1565c0;font-weight:bold'" : "";
+        details+=`<p ${rainClass}>${section} · 🕓 ${hour.toString().padStart(2,"0")}:00 – 🌡️ ${temp.toFixed(1)} °C – ${e.weather[0].description}</p>`;
+        if(hour>=16 && hour<=18){ temps16_18.push(temp); if(e.rain) rain16_18=true; }
+      }
+    });
+
+    const weatherEl=document.getElementById("weather");
+    if(!temps16_18.length){ weatherEl.innerText="🌦️ Wetter für Mittwoch noch nicht verfügbar"; return; }
+
+    const avg=(temps16_18.reduce((a,b)=>a+b,0)/temps16_18.length).toFixed(1);
+    weatherEl.innerText=`🌦️ ${avg} °C · es wird ${rain16_18 ? "regnen":"nicht regnen"}`;
+
+    document.getElementById("weatherDetails").innerHTML=`<p><strong>🌡️ ${minTemp.toFixed(1)} – ${maxTemp.toFixed(1)} °C</strong></p>`+details;
+  }
+
+  loadWeather();
+});
 </script>
 
 </body>

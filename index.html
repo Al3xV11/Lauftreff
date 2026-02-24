@@ -54,25 +54,24 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getFirestore, collection, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
-document.addEventListener("DOMContentLoaded", ()=>{
+document.addEventListener("DOMContentLoaded", async ()=>{
 
-
-  
-  // 🔑 Firebase
+  // 🔑 Firebase initialisieren
   const firebaseConfig = {
     apiKey: "AIzaSyDi3ZJKDa2o3YX9XmsTMqPu7R3U9DwLqiA",
     authDomain: "lauftreff-ad4df.firebaseapp.com",
     projectId: "lauftreff-ad4df"
   };
   const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
 
-    // 🔒 App Check
-  initializeAppCheck(app,{
+  // 🔒 App Check initialisieren
+  initializeAppCheck(app, {
     provider: new ReCaptchaV3Provider("6LdorXYsAAAAAM6UlRHDAQPe3Q5OxpAKE1rGy7Ld"),
     isTokenAutoRefreshEnabled: true
-    });
+  });
 
+  // Firestore erst nach AppCheck nutzen
+  const db = getFirestore(app);
   window.db = db; // global für vote()
 
   // Name aus LocalStorage laden
@@ -80,7 +79,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
   const savedName = localStorage.getItem("userName");
   if(savedName) nameInput.value = savedName;
 
-  // Modal
+  // Modal: öffnen/schließen
   const weatherModal = document.getElementById("weatherModal");
   document.getElementById("closeBtn").addEventListener("click", ()=> weatherModal.style.display="none");
   weatherModal.addEventListener("click",(e)=>{ if(e.target===weatherModal) weatherModal.style.display="none"; });
@@ -166,6 +165,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
   }
 
   loadWeather();
+
 });
 </script>
 

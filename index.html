@@ -56,6 +56,12 @@ import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com
 
 document.addEventListener("DOMContentLoaded", ()=>{
 
+    // 🔒 App Check
+  initializeAppCheck(app,{
+    provider: new ReCaptchaV3Provider("6LdorXYsAAAAAM6UlRHDAQPe3Q5OxpAKE1rGy7Ld"),
+    isTokenAutoRefreshEnabled: true
+    });
+  
   // 🔑 Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyDi3ZJKDa2o3YX9XmsTMqPu7R3U9DwLqiA",
@@ -65,11 +71,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // 🔒 App Check
-  initializeAppCheck(app,{
-    provider: new ReCaptchaV3Provider("6LdorXYsAAAAAM6UlRHDAQPe3Q5OxpAKE1rGy7Ld"),
-    isTokenAutoRefreshEnabled: true
-  });
+
 
   window.db = db; // global für vote()
 

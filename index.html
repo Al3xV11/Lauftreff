@@ -70,7 +70,7 @@ li { list-style: none; padding: 6px 0; line-height: 1.4; font-size: 16px; }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, doc, setDoc, onSnapshot, getDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
 document.addEventListener("DOMContentLoaded", async ()=>{
@@ -95,6 +95,7 @@ const firebaseConfig = {
   // Firestore erst nach AppCheck nutzen
   const db = getFirestore(app);
   window.db = db; // global für vote()
+  await checkWeeklyReset();
 
   // Name aus LocalStorage laden
   const nameInput = document.getElementById("name");
@@ -106,6 +107,37 @@ const firebaseConfig = {
   document.getElementById("closeBtn").addEventListener("click", ()=> weatherModal.style.display="none");
   weatherModal.addEventListener("click",(e)=>{ if(e.target===weatherModal) weatherModal.style.display="none"; });
   document.getElementById("weather").addEventListener("click", ()=> weatherModal.style.display="block");
+
+  /* Donnerstag Reset */
+async function checkWeeklyReset() {
+
+  const today = new Date();
+  const day = today.getDay(); // 0=So, 4=Do
+
+  if (day !== 4) return;
+
+  const metaRef = doc(db, "meta", "reset");
+  const metaSnap = await getDoc(metaRef);
+
+  const currentWeek = `${today.getFullYear()}-${today.getWeek}`;
+
+  if (metaSnap.exists() && metaSnap.data().week === currentWeek) {
+    return;
+  }
+
+  const votesSnap = await getDocs(collection(db, "votes"));
+
+  for (const d of votesSnap.docs) {
+    await deleteDoc(doc(db, "votes", d.id));
+  }
+
+  await setDoc(metaRef, {
+    week: currentWeek,
+    date: today.toISOString()
+  });
+
+  console.log("Abstimmung zurückgesetzt");
+}
 
   // Abstimmung
   function vote(choice){
@@ -189,6 +221,14 @@ const firebaseConfig = {
   loadWeather();
 
 });
+
+Date.prototype.getWeek = function() {
+  const d = new Date(Date.UTC(this.getFullYear(), this.getMonth(), this.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+};
 </script>
 
   <a class="footer-button" href="https://al3xv11.github.io/Firmenlauf/" target="_blank">

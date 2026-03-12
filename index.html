@@ -95,7 +95,7 @@ const firebaseConfig = {
   // Firestore erst nach AppCheck nutzen
   const db = getFirestore(app);
   window.db = db; // global für vote()
-  await checkWeeklyReset();
+  
 
   // Name aus LocalStorage laden
   const nameInput = document.getElementById("name");
@@ -229,6 +229,7 @@ Date.prototype.getWeek = function() {
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
   return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
 };
+await checkWeeklyReset();
 </script>
 
   <a class="footer-button" href="https://al3xv11.github.io/Firmenlauf/" target="_blank">

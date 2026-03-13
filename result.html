@@ -130,8 +130,8 @@ async function loadResults(){
     }).filter(r=>r.rank && r.team); // leere Zeilen raus
 
     // Filter nach deinen Teams
-    const filtered = results.filter(r => myTeams.some(t => r.team.toLowerCase().includes(t)));
-
+    //const filtered = results.filter(r => myTeams.some(t => r.team.toLowerCase().includes(t)));
+    const filtered = results.filter(r => r.team === "Team LC DJK Erbach powered by Wegener");
     renderRunners(filtered);
     renderTeamRanking(filtered);
     renderStats(filtered);

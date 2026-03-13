@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace Rechner</title>
+<link rel="icon" href="app_icon.png" type="image/png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4CAF50">
+<link rel="apple-touch-icon" href="icon-512.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Hamburger Menü -->
+<div class="navbar">
+<script src="menu.js"></script>
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+  <div id="menu" class="menu">
+    <a href="index.html">🏠 Abstimmung</a>
+    <a href="pace.html">🏃 Pace Rechner</a>
+    <a href="firmenlauf.html">🏃 Anmeldung Firmenlauf</a>
+    <a href="result.html">🏁 Firmenlauf Ergebnisse</a>
+  </div>
+</div>
+
+<h2>🏃 Pace Rechner</h2>
+
+<div style="max-width:400px;margin:auto;">
+
+  <label for="distance">Strecke (km)</label>
+  <input type="number" id="distance" placeholder="z.B. 5" min="0" step="0.01">
+
+  <label for="time">Zeit (MM:SS)</label>
+  <input type="text" id="time" placeholder="z.B. 25:30">
+
+  <button onclick="calculatePace()">Berechnen</button>
+
+  <div id="result" style="margin-top:20px; font-size:18px;"></div>
+
+</div>
+
+<script src="js/menu.js"></script>
+<script>
+function calculatePace() {
+  const distance = parseFloat(document.getElementById('distance').value);
+  const timeStr = document.getElementById('time').value.trim();
+
+  if (!distance || !timeStr) {
+    alert('Bitte Strecke und Zeit eingeben!');
+    return;
+  }
+
+  // Zeit in Sekunden umrechnen
+  const parts = timeStr.split(':');
+  if (parts.length !== 2) {
+    alert('Zeit muss im Format MM:SS sein!');
+    return;
+  }
+
+  const minutes = parseInt(parts[0], 10);
+  const seconds = parseInt(parts[1], 10);
+  if (isNaN(minutes) || isNaN(seconds)) {
+    alert('Ungültige Zeitangabe!');
+    return;
+  }
+
+  const totalSeconds = minutes * 60 + seconds;
+
+  // Pace pro km (in Sekunden)
+  const paceSec = totalSeconds / distance;
+  const paceMin = Math.floor(paceSec / 60);
+  const paceRemSec = Math.round(paceSec % 60);
+
+  // Durchschnittsgeschwindigkeit km/h
+  const hours = totalSeconds / 3600;
+  const kmh = (distance / hours).toFixed(2);
+
+  // Ergebnis anzeigen
+  document.getElementById('result').innerHTML =
+    `⏱️ Pace: ${paceMin}:${paceRemSec.toString().padStart(2,'0')} min/km<br>` +
+    `⚡ Durchschnitt: ${kmh} km/h`;
+}
+</script>
+
+</body>
+</html>

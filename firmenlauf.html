@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firmenlauf 2026</title>
+<link rel="icon" href="app_icon.png" type="image/png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4CAF50">
+<link rel="apple-touch-icon" href="icon-512.png">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="navbar">
+<script src="menu.js"></script>
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+  <div id="menu" class="menu">
+    <a href="index.html">🏠 Abstimmung</a>
+    <a href="pace.html">🏃 Pace Rechner</a>
+    <a href="firmenlauf.html">🏃 Anmeldung Firmenlauf</a>
+    <a href="result.html">🏁 Firmenlauf Ergebnisse</a>
+  </div>
+</div>
+
+<h2>🏃 Firmenlauf Anmeldung</h2>
+
+<div id="countdown">
+  Anmeldung schließt in <span id="time"></span>
+</div>
+
+<form id="surveyForm">
+
+<div class="person-row">
+  <input id="p1" placeholder="Person 1" required>
+  <select id="t1">
+    <option value="Nein">T-Shirt: Nein</option>
+    <option value="Ja">T-Shirt: Ja</option>
+  </select>
+  <select id="s1" style="display:none">
+    <option value="">Größe</option>
+    <option>Frauen S</option><option>Frauen M</option><option>Frauen L</option>
+    <option>Frauen XL</option><option>Frauen 2XL</option>
+    <option>Männer S</option><option>Männer M</option><option>Männer L</option>
+    <option>Männer XL</option><option>Männer 2XL</option>
+  </select>
+</div>
+
+<div class="person-row">
+  <input id="p2" placeholder="Person 2">
+  <select id="t2">
+    <option value="Nein">T-Shirt: Nein</option>
+    <option value="Ja">T-Shirt: Ja</option>
+  </select>
+  <select id="s2" style="display:none">
+    <option value="">Größe</option>
+    <option>Frauen S</option><option>Frauen M</option><option>Frauen L</option>
+    <option>Frauen XL</option><option>Frauen 2XL</option>
+    <option>Männer S</option><option>Männer M</option><option>Männer L</option>
+    <option>Männer XL</option><option>Männer 2XL</option>
+  </select>
+</div>
+
+<div class="person-row">
+  <input id="p3" placeholder="Person 3">
+  <select id="t3">
+    <option value="Nein">T-Shirt: Nein</option>
+    <option value="Ja">T-Shirt: Ja</option>
+  </select>
+  <select id="s3" style="display:none">
+    <option value="">Größe</option>
+    <option>Frauen S</option><option>Frauen M</option><option>Frauen L</option>
+    <option>Frauen XL</option><option>Frauen 2XL</option>
+    <option>Männer S</option><option>Männer M</option><option>Männer L</option>
+    <option>Männer XL</option><option>Männer 2XL</option>
+  </select>
+</div>
+
+<label>Team</label>
+<input id="team" value="Zufall">
+
+<button type="submit">Absenden</button>
+</form>
+
+<div id="error"></div>
+
+<h2>📋 Teams</h2>
+<table>
+<thead>
+<tr><th>Team</th><th>Teilnehmer</th></tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+<button id="downloadBtn" style="display:none; margin-top:10px;">
+⬇️ Teams als Excel herunterladen
+</button>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, doc, getDocs, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
+  
+/* 🔥 Firebase Config */
+const firebaseConfig = {
+  apiKey: "AIzaSyDTk0mMhZ6eX1jzZuFIYEoHY38YZUcEpns",
+  authDomain: "firmenlauf-8e694.firebaseapp.com",
+  projectId: "firmenlauf-8e694",
+  storageBucket: "firmenlauf-8e694.firebasestorage.app",
+  messagingSenderId: "740730808511",
+  appId: "1:740730808511:web:11a5d055eb10790a453e0a",
+  measurementId: "G-N1BFHE44SJ"
+};
+
+const app = initializeApp(firebaseConfig);
+
+initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider("6LdZpnYsAAAAANqU6pXftGa3Sq_TtVM6aOoIKYsG"),
+  isTokenAutoRefreshEnabled: true
+});
+const db = getFirestore(app);
+const teamsRef = collection(db,"teams");
+
+/* Zufallsnamen */
+const A=["Byte","CPU","Pixel","RAM","Cache","Kernel","GPU","Server","Code"];
+const B=["Runner","Sprint","Marathon","Dash","Speed","Stride","Flow","Turbo"];
+function randomTeamName(existingTeams){
+  let name;
+  do {
+    name = `${A[Math.floor(Math.random()*A.length)]} ${B[Math.floor(Math.random()*B.length)]}`;
+  } while (existingTeams[name]);
+  return name;
+}
+
+/* T-Shirt → Größe */
+function bind(t,s){
+  t.addEventListener("change",()=>{ s.style.display=t.value==="Ja"?"block":"none"; if(t.value!=="Ja") s.value=""; });
+}
+bind(t1,s1); bind(t2,s2); bind(t3,s3);
+
+/* Submit */
+surveyForm.addEventListener("submit", async e=>{
+  e.preventDefault();
+  error.textContent="";
+
+  const persons=[
+    {name:p1.value.trim(),tshirt:t1.value,size:s1.value},
+    {name:p2.value.trim(),tshirt:t2.value,size:s2.value},
+    {name:p3.value.trim(),tshirt:t3.value,size:s3.value}
+  ].filter(p=>p.name);
+
+  if(!persons.length) return;
+
+  const snap=await getDocs(teamsRef);
+  const teams={};
+  snap.forEach(d=>teams[d.id]=d.data().members||[]);
+
+  let teamName=team.value.trim();
+
+/* Zufall / Teamwahl */
+if (!teamName || teamName.toLowerCase() === "zufall") {
+  if (persons.length === 1) {
+    // zuerst freies Team suchen
+    teamName = Object.keys(teams).find(t => teams[t].length < 3);
+    if (!teamName) {
+      teamName = randomTeamName(teams);
+    }
+  } else {
+    teamName = randomTeamName(teams);
+  }
+}
+
+let members = teams[teamName] || [];
+
+// Team voll?
+if (members.length + persons.length > 3) {
+  const ok = confirm(`Team "${teamName}" ist voll. Willst du einem freien Team zugeordnet werden?`);
+  if (!ok) return;
+
+  // freies Team suchen
+  const freeTeam = Object.keys(teams).find(t => teams[t].length < 3);
+  if (freeTeam) {
+    teamName = freeTeam;
+    members = teams[freeTeam];
+  } else {
+    teamName = randomTeamName(teams);
+    members = [];
+  }
+}
+
+await setDoc(doc(db, "teams", teamName), {
+  members: [...members, ...persons]
+});
+
+  surveyForm.reset();
+  team.value="Zufall";
+});
+
+/* Tabelle */
+onSnapshot(teamsRef,snap=>{
+  tableBody.innerHTML="";
+  let green=true;
+  snap.forEach(d=>{
+    const cls=green?"team-green":"team-blue"; green=!green;
+    const members=d.data().members.map(p=>
+      `${p.name} (T-Shirt: ${p.tshirt}${p.size?", "+p.size:""})`
+    ).join("<br>");
+    tableBody.innerHTML+=`<tr class="${cls}"><td>${d.id}</td><td>${members}</td></tr>`;
+  });
+});
+let secretClicks = 0;
+const teamInput = document.getElementById("team");
+const downloadBtn = document.getElementById("downloadBtn");
+
+teamInput.addEventListener("click", () => {
+  secretClicks++;
+  if (secretClicks === 5) {
+    downloadBtn.style.display = "block";
+    alert("Admin-Funktion aktiviert 👀");
+  }
+});
+downloadBtn.addEventListener("click", async () => {
+  const snap = await getDocs(teamsRef);
+
+  let csv = "Team,Name,T-Shirt,Größe\n";
+
+  snap.forEach(doc => {
+    const team = doc.id;
+    const members = doc.data().members || [];
+    members.forEach(p => {
+      csv += `"${team}","${p.name}","${p.tshirt}","${p.size || ""}"\n`;
+    });
+  });
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "firmenlauf_teams.csv";
+  a.click();
+
+  URL.revokeObjectURL(url);
+});
+
+// Countdown
+
+const deadline = new Date("2026-03-30T18:00:00").getTime();
+
+const timer = setInterval(() => {
+  const now = new Date().getTime();
+  const diff = deadline - now;
+
+  if (diff <= 0) {
+    clearInterval(timer);
+    document.getElementById("time").innerHTML = "❌ Anmeldung geschlossen";
+    const btn = document.querySelector('button[type="submit"]');
+if (btn) {
+  btn.style.display = "none";
+}
+    return;
+  }
+  if (diff < 5*86400000) {
+  document.getElementById("countdown").style.color = "red";
+}
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+
+  document.getElementById("time").innerHTML =
+    `${days} Tage ${hours} Std ${minutes} Min ${seconds} Sek`;
+}, 1000);
+</script>
+
+</body>
+</html>

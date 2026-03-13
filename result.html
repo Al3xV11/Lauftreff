@@ -81,6 +81,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
 
 const firebaseConfig = {
@@ -93,6 +94,12 @@ appId: "1:740730808511:web:11a5d055eb10790a453e0a"
 };
 
 const app = initializeApp(firebaseConfig);
+
+initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider("6LdZpnYsAAAAANqU6pXftGa3Sq_TtVM6aOoIKYsG"),
+  isTokenAutoRefreshEnabled: true
+});
+  
 const db = getFirestore(app);
 
 const EVENT_ID="313865";

@@ -131,7 +131,11 @@ async function loadResults(){
 
     // Filter nach deinen Teams
     //const filtered = results.filter(r => myTeams.some(t => r.team.toLowerCase().includes(t)));
-    const filtered = results.filter(r => r.team?.trim().toLowerCase() === "Team LC DJK Erbach powered by Wegener");
+    const filtered = results.filter(r => {
+  if(!r.team) return false;
+  const team = r.team.replace(/\s+/g," ").trim().toLowerCase(); // alle Whitespace vereinheitlichen
+  return team.includes("team lc djk erbach powered by wegener".toLowerCase());
+});
     renderRunners(filtered);
     renderTeamRanking(filtered);
     renderStats(filtered);

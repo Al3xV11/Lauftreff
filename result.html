@@ -119,19 +119,18 @@ async function loadResults(){
     const doc = parser.parseFromString(htmlText,"text/html");
     const rows = doc.querySelectorAll("table tbody tr");
     
-    const results = Array.from(rows).map(tr=>{
-      const tds = tr.querySelectorAll("td");
-      return {
-        rank: tds[0]?.innerText.trim(),
-        name: tds[1]?.innerText.trim(),
-        team: tds[2]?.innerText.trim(),
-        time: tds[3]?.innerText.trim()
-      };
-    }).filter(r=>r.rank && r.team); // leere Zeilen raus
+const results = [
+  {rank:"1", name:"BECKER Yves", team:"Team LC DJK Erbach powered by Wegener", time:"18:28"},
+  {rank:"2", name:"GEBHARDT Maximilian", team:"BBZ Homburg 6", time:"18:47"},
+  {rank:"3", name:"ADAM Rasmus", team:"Schwimmclub Homburg", time:"19:10"},
+];
 
-    // Filter nach deinen Teams
-    //const filtered = results.filter(r => myTeams.some(t => r.team.toLowerCase().includes(t)));
-    const filtered = results.forEach(r => console.log("Team raw:", JSON.stringify(r.team)));
+// Filter nach deinem Testteam
+const filtered = results.filter(r => 
+  r.team.replace(/\s+/g," ").trim().toLowerCase()
+   .includes("team lc djk erbach powered by wegener".toLowerCase())
+);
+
     renderRunners(filtered);
     renderTeamRanking(filtered);
     renderStats(filtered);

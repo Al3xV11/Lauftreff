@@ -77,7 +77,7 @@
 </table>
 
 
-<<script type="module">
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
@@ -97,54 +97,44 @@ initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider("6LdZpnYsAAAAANqU6pXftGa3Sq_TtVM6aOoIKYsG"),
   isTokenAutoRefreshEnabled: true
 });
-
 const db = getFirestore(app);
 
-/* 🚀 Event ID RaceResult */
-const EVENT_ID = "313865";
-
 /* 🔹 Hilfsfunktionen */
-function parseTime(t){
-  if(!t) return null;
-  const [m,s] = t.split(":").map(Number);
-  return m*60 + s;
-}
-
-function formatTime(sec){
-  const m = Math.floor(sec/60);
-  const s = sec%60;
-  return `${m}:${s.toString().padStart(2,"0")}`;
-}
+function parseTime(t){ if(!t) return null; const [m,s]=t.split(":").map(Number); return m*60+s; }
+function formatTime(sec){ const m=Math.floor(sec/60); const s=sec%60; return `${m}:${s.toString().padStart(2,"0")}`; }
 
 /* 🔹 Lade alle Teams aus Firebase */
 async function getTeams(){
   const snap = await getDocs(collection(db,"teams"));
-  return snap.docs.map(d => d.id.toLowerCase());
+  return snap.docs.map(d=>d.id.toLowerCase());
 }
 
-/* 🔹 Lade Ergebnisse von RaceResult */
+/* 🔹 Lade RaceResult Ergebnisse via HTML Scraping */
 async function loadResults(){
   try{
-    const myTeams = await getTeams(); // deine Teams
-    const res = await fetch(`https://my.raceresult.com/${EVENT_ID}/data`);
-    const json = await res.json();
-
-    // json.data = Array von Arrays, json.DataFields = Feldnamen
-    const results = json.data.map(row => {
-      const obj = {};
-      json.DataFields.forEach((field,i)=>obj[field]=row[i]);
-      return obj;
-    });
+    const myTeams = await getTeams(); // Teams aus Firebase
+    const res = await fetch("https://my.raceresult.com/313865/");
+    const htmlText = await res.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlText,"text/html");
+    const rows = doc.querySelectorAll("table tbody tr");
+    
+    const results = Array.from(rows).map(tr=>{
+      const tds = tr.querySelectorAll("td");
+      return {
+        rank: tds[0]?.innerText.trim(),
+        name: tds[1]?.innerText.trim(),
+        team: tds[2]?.innerText.trim(),
+        time: tds[3]?.innerText.trim()
+      };
+    }).filter(r=>r.rank && r.team); // leere Zeilen raus
 
     // Filter nach deinen Teams
-    const filtered = results.filter(r =>
-      myTeams.some(t => r["ATF1"]?.toLowerCase().includes(t))
-    );
+    const filtered = results.filter(r => myTeams.some(t => r.team.toLowerCase().includes(t)));
 
     renderRunners(filtered);
     renderTeamRanking(filtered);
     renderStats(filtered);
-
     document.getElementById("status").innerText = "Aktualisiert "+new Date().toLocaleTimeString();
   } catch(e){
     console.error(e);
@@ -156,54 +146,45 @@ async function loadResults(){
 function renderRunners(data){
   const tbody = document.getElementById("runnerBody");
   tbody.innerHTML="";
-  data.forEach((p,i)=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${p["MitStatus([RANK1p])"] || ""}</td>
-      <td>${p["AnzeigeName"] || ""}</td>
-      <td>${p["ATF1"] || ""}</td>
-      <td>${p["MitStatus([TIME1])"] || ""}</td>
-    `;
+  data.forEach(p=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${p.rank}</td><td>${p.name}</td><td>${p.team}</td><td>${p.time}</td>`;
     tbody.appendChild(tr);
   });
 }
 
 /* 🔹 Render Stats */
 function renderStats(data){
-  const finishers = data.filter(p=>p["MitStatus([TIME1])"]).length;
+  const finishers = data.filter(p=>p.time).length;
   document.getElementById("finishers").innerText = finishers;
   document.getElementById("participants").innerText = data.length;
 
-  const fastest = data.filter(p=>p["MitStatus([TIME1])"])
-                      .sort((a,b)=>parseTime(a["MitStatus([TIME1])"]) - parseTime(b["MitStatus([TIME1])"]))[0];
-  if(fastest){
-    document.getElementById("fastest").innerText = `${fastest["AnzeigeName"]} (${fastest["MitStatus([TIME1])"]})`;
-  }
+  const fastest = data.filter(p=>p.time).sort((a,b)=>parseTime(a.time)-parseTime(b.time))[0];
+  if(fastest) document.getElementById("fastest").innerText = `${fastest.name} (${fastest.time})`;
 }
 
-/* 🔹 Render Teamwertung (beste 3 Zeiten) */
+/* 🔹 Teamwertung (Top3 Zeiten) */
 function renderTeamRanking(data){
-  const teams={};
+  const teams = {};
   data.forEach(p=>{
-    if(!p["MitStatus([TIME1])"]) return;
-    if(!teams[p["ATF1"]]) teams[p["ATF1"]]=[];
-    teams[p["ATF1"]].push(parseTime(p["MitStatus([TIME1])"]));
+    if(!p.time) return;
+    if(!teams[p.team]) teams[p.team] = [];
+    teams[p.team].push(parseTime(p.time));
   });
 
-  const ranking=[];
+  const ranking = [];
   for(const team in teams){
     const t = teams[team].sort((a,b)=>a-b).slice(0,3);
     if(t.length===3){
       ranking.push({team, time: t.reduce((a,b)=>a+b,0)});
     }
   }
-
   ranking.sort((a,b)=>a.time-b.time);
 
   const tbody = document.getElementById("teamBody");
   tbody.innerHTML="";
   ranking.forEach((r,i)=>{
-    const tr=document.createElement("tr");
+    const tr = document.createElement("tr");
     if(i===0) tr.className="rank1";
     if(i===1) tr.className="rank2";
     if(i===2) tr.className="rank3";
@@ -212,10 +193,9 @@ function renderTeamRanking(data){
   });
 }
 
-/* 🔹 Erst laden + Live Refresh */
+/* 🔹 Erst laden + Live Refresh alle 30 Sekunden */
 loadResults();
 setInterval(loadResults, 30000);
-
 </script>
 </body>
 </html>

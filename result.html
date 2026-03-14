@@ -113,7 +113,7 @@ async function getTeams(){
 async function loadResults(){
   try{
     const myTeams = await getTeams(); // Teams aus Firebase
-    const res = await fetch("https://my.raceresult.com/364750/participants#0_0D6692");
+    const res = await fetch("https://my2.raceresult.com/313865/results/list?key=f6af37caa90f96b71a1ebe530e66f614&listname=RaceResult Timing BW gmbh|Zieleinlauf-Liste&page=results&contest=0&r=leaders&l=10000&openedGroups={}&term=");
     const htmlText = await res.text();
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlText,"text/html");

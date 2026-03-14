@@ -129,7 +129,17 @@ async function loadResults(){
       };
     }).filter(r=>r.rank && r.team); // leere Zeilen raus
 
-
+    // Filter nach deinen Teams
+    const filtered = results.filter(r => myTeams.some(t => r.team.toLowerCase().includes(t)));
+    renderRunners(filtered);
+    renderTeamRanking(filtered);
+    renderStats(filtered);
+    document.getElementById("status").innerText = "Aktualisiert "+new Date().toLocaleTimeString();
+  } catch(e){
+    console.error(e);
+    document.getElementById("status").innerText = "Fehler beim Laden der Ergebnisse";
+  }
+}
 
 /* 🔹 Render Läufer */
 function renderRunners(data){

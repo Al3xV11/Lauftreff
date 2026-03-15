@@ -116,71 +116,132 @@ li {
   cursor: pointer;
 }
 
-/* Navbar bleibt oben */
-.navbar {
-  position: relative;
-  margin-bottom: 10px;
+/* NAVBAR */
+
+.navbar{
+  height:50px;
+  display:flex;
+  align-items:center;
 }
 
-/* Hamburger Symbol */
-.hamburger {
-  font-size: 28px;
-  cursor: pointer;
+/* HAMBURGER ICON */
+
+.hamburger{
+  width:30px;
+  height:22px;
+  position:relative;
+  cursor:pointer;
+  z-index:1200;
 }
 
-/* Menü unter Hamburger positionieren */
-.menu {
-  display: none;              /* unsichtbar standardmäßig */
-  position: absolute;         /* absolut relativ zur Navbar */
-  top: 40px;                  /* direkt unter dem Hamburger */
-  Left: 0;                   /* rechtsbündig zum Hamburger */
-  background-color: white;    /* <-- Weißer Hintergrund */
-  border-radius: 8px;
-  width:75%;
-  height:85vh;
-  border-radius:0 10px 10px 0;
-  padding: 10px;
-  z-index: 1000;
-  flex-direction: column;
-  text-align: left;          /* Text rechtsbündig optional */
-
-  /* optional: Schatten für bessere Sichtbarkeit */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-/* Menü-Links */
-.menu a {
-  display: block;
-  margin: 8px 0;
-  padding: 6px 12px;
-  font-size: 20px;
-  color: black;               /* Textfarbe schwarz auf weiß */
-  text-decoration: none;
-}
-
-.menu a:hover {
-  background-color: #1565c0;  /* Blau beim Hover */
-  color: white;               /* Text dann weiß */
-  border-radius: 6px;
-}
-
-.menu-header{
+.hamburger span{
+  position:absolute;
+  height:3px;
   width:100%;
-  text-align:center;
+  background:#000;
+  border-radius:2px;
+  transition:0.3s;
+}
+
+.hamburger span:nth-child(1){
+  top:0;
+}
+
+.hamburger span:nth-child(2){
+  top:9px;
+}
+
+.hamburger span:nth-child(3){
+  top:18px;
+}
+
+/* X Animation */
+
+.hamburger.open span:nth-child(1){
+  transform:rotate(45deg);
+  top:9px;
+}
+
+.hamburger.open span:nth-child(2){
+  opacity:0;
+}
+
+.hamburger.open span:nth-child(3){
+  transform:rotate(-45deg);
+  top:9px;
+}
+
+/* OVERLAY HINTERGRUND */
+
+.overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.4);
+  opacity:0;
+  visibility:hidden;
+  transition:0.3s;
+  z-index:900;
+}
+
+.overlay.open{
+  opacity:1;
+  visibility:visible;
+}
+
+/* SLIDE MENÜ */
+
+.menu{
+  position:fixed;
+  top:0;
+  width:80%;
+  max-width:320px;
+  left:-320px;
+  height:100%;
+  background:white;
+  padding-top:70px;
+
+  display:flex;
+  flex-direction:column;
+
+
+  box-shadow:4px 0 20px rgba(0,0,0,0.25);
+
+  transition:0.6s ease;
+  z-index:1000;
+}
+
+.menu.open{
+  left:0;
+}
+
+/* MENÜ LINKS */
+
+.menu a{
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  padding:16px 24px;
+  font-size:20px;
+  color:black;
+  text-decoration:none;
+
+  transition:0.6s;
+}
+
+.menu a:hover{
   background:#1565c0;
-}
-
-.menu-title{
   color:white;
-  font-size:22px;
-  font-weight:bold;
-  padding:12px 0;
+  transform:translateX(6px);
 }
 
-.menu-header img{
-  width:100%;
-  height:auto;
-  display:block;
+.menu a.active{
+  background:#1565c0;
+  color:white;
+  font-weight:bold;
 }
 
 @media (max-width: 600px) {
@@ -210,4 +271,22 @@ th { background: #f0f0f0; }
   font-size: 1.4em;
   font-weight: bold;
   text-align: center;
+}
+.menu-header{
+  width:100%;
+  text-align:center;
+  background:#1565c0;
+}
+
+.menu-title{
+  color:white;
+  font-size:22px;
+  font-weight:bold;
+  padding:12px 0;
+}
+
+.menu-header img{
+  width:100%;
+  height:auto;
+  display:block;
 }

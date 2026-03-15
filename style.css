@@ -137,6 +137,8 @@ li {
   background-color: white;    /* <-- Weißer Hintergrund */
   border-radius: 8px;
   width:75%;
+  height:75vh;
+  border-radius:0 10px 10px 0;
   padding: 10px;
   z-index: 1000;
   flex-direction: column;

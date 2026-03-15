@@ -12,20 +12,25 @@
 </head>
 
 <body>
-
 <div class="navbar">
 <script src="menu.js"></script>
-  <div class="hamburger" onclick="toggleMenu()">☰</div>
-  <div id="menu" class="menu">
+<div class="hamburger" onclick="toggleMenu()">
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
+</div>
+<div id="overlay" class="overlay"></div>
+
+<div id="menu" class="menu">
     <div class="menu-header">
     <img src="zik_logo.png" alt="ZIK Runners">
     <div class="menu-title">ZIK Runners</div>
     </div>
-    <a href="index.html">🏠 Abstimmung</a>
-    <a href="pace.html">🏃 Pace Rechner</a>
-    <a href="firmenlauf.html">🏃 Anmeldung Firmenlauf</a>
+    <a href="index.html" class="active">☑️ Abstimmung</a>
+    <a href="pace.html">⏱️ Pace Rechner</a>
+    <a href="firmenlauf.html">📋 Anmeldung Firmenlauf</a>
     <a href="result.html">🏁 Firmenlauf Ergebnisse</a>
-  </div>
 </div>
 
 <h1>🏁 Firmenlauf Ergebnisse</h1>

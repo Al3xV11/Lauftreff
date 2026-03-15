@@ -136,6 +136,7 @@ li {
   Left: 0;                   /* rechtsbündig zum Hamburger */
   background-color: white;    /* <-- Weißer Hintergrund */
   border-radius: 8px;
+  width:75%;
   padding: 10px;
   z-index: 1000;
   flex-direction: column;
@@ -159,6 +160,25 @@ li {
   background-color: #1565c0;  /* Blau beim Hover */
   color: white;               /* Text dann weiß */
   border-radius: 6px;
+}
+
+.menu-header{
+  width:100%;
+  text-align:center;
+  background:#1565c0;
+}
+
+.menu-title{
+  color:white;
+  font-size:22px;
+  font-weight:bold;
+  padding:12px 0;
+}
+
+.menu-header img{
+  width:100%;
+  height:auto;
+  display:block;
 }
 
 @media (max-width: 600px) {

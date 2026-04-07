@@ -254,7 +254,7 @@ downloadBtn.addEventListener("click", async () => {
 
 // Countdown
 
-const deadline = new Date("2026-03-30T18:00:00").getTime();
+const deadline = new Date("2026-04-07T15:00:00").getTime();
 
 const timer = setInterval(() => {
   const now = new Date().getTime();
@@ -269,7 +269,7 @@ if (btn) {
 }
     return;
   }
-  if (diff < 5*186400000) {
+  if (diff < 5*86400000) {
   document.getElementById("countdown").style.color = "red";
 }
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));

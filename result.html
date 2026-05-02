@@ -122,7 +122,7 @@ async function getTeams(){
 async function loadResults(){
   try{
     const myTeams = await getTeams(); // Teams aus Firebase
-const res = await fetch("hhttps://my3.raceresult.com/364750/participants/list?key=8e09dde545a57aac66be75b15c55b8f7&listname=RaceResult%20Timing%20BW%20gmbh%7CTeilnehmer&page=participants&contest=0&r=leaders&l=3&openedGroups=%7B%7D&term=");
+const res = await fetch("https://my3.raceresult.com/364750/participants/list?key=8e09dde545a57aac66be75b15c55b8f7&listname=RaceResult%20Timing%20BW%20gmbh%7CTeilnehmer&page=participants&contest=0&r=leaders&l=3&openedGroups=%7B%7D&term=");
 
 const json = await res.json();
 
